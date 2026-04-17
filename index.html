@@ -252,6 +252,11 @@ textarea.form-control{resize:vertical;min-height:80px}
 /* ─── CATEGORY DOT ─── */
 .cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
 
+/* ─── FORM SECTION LABEL ─── */
+.form-section{grid-column:span 2;margin-top:10px;padding-top:12px;border-top:2px solid var(--green-pale);font-size:11px;font-weight:700;color:var(--green-d);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px}
+.form-section:first-child{margin-top:0;padding-top:0;border-top:none}
+.form-section::before{content:'';display:inline-block;width:3px;height:12px;background:var(--green);border-radius:2px}
+
 /* ─── VINCULOS ─── */
 .vinculo-row{background:#F8FAFC;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
 .vinculo-info{flex:1}
@@ -482,8 +487,10 @@ textarea.form-control{resize:vertical;min-height:80px}
         <div class="form-group"><label>Tipo *</label><select class="form-control" id="eq-tipo"><option value="">Selecione...</option><option value="Hospitalar">Hospitalar</option><option value="UPA">UPA</option></select></div>
         <div class="form-group"><label>Regional *</label><input class="form-control" id="eq-regional" placeholder="Ex: Regional Centro"></div>
         <div class="form-group span-2"><label>Local da Base *</label><input class="form-control" id="eq-local" placeholder="Nome do hospital ou UPA"></div>
-        <div class="form-group"><label>Telefone</label><input class="form-control" id="eq-tel" placeholder="(00) 00000-0000"></div>
+        <div class="form-group"><label>Telefone 1</label><input class="form-control" id="eq-tel" placeholder="(00) 00000-0000"></div>
         <div class="form-group"><label>E-mail</label><input class="form-control" id="eq-email" placeholder="equipe@dominio.gov.br"></div>
+        <div class="form-group"><label>Telefone 2</label><input class="form-control" id="eq-tel2" placeholder="(00) 00000-0000"></div>
+        <div class="form-group"><label>Telefone 3</label><input class="form-control" id="eq-tel3" placeholder="(00) 00000-0000"></div>
         <div class="form-group"><label>Equipe Irmã</label><select class="form-control" id="eq-irma"><option value="">Nenhuma</option></select></div>
         <div class="form-group"><label>Centros de Saúde</label><input class="form-control" id="eq-centros" placeholder="CS A, CS B, CS C"></div>
       </div>
@@ -500,10 +507,16 @@ textarea.form-control{resize:vertical;min-height:80px}
     <div class="modal-body">
       <div class="form-err" id="prof-err"></div>
       <div class="form-grid">
+
+        <div class="form-section">Identificação Pessoal</div>
         <div class="form-group span-2"><label>Nome Completo *</label><input class="form-control" id="pf-nome" placeholder="Nome completo"></div>
+        <div class="form-group"><label>CPF</label><input class="form-control" id="pf-cpf" placeholder="000.000.000-00"></div>
+        <div class="form-group"><label>Data de Nascimento</label><input class="form-control" id="pf-nasc" type="date"></div>
         <div class="form-group"><label>E-mail</label><input class="form-control" id="pf-email" type="email" placeholder="email@dominio.com"></div>
         <div class="form-group"><label>Telefone</label><input class="form-control" id="pf-tel" placeholder="(00) 00000-0000"></div>
-        <div class="form-group"><label>Data de Nascimento</label><input class="form-control" id="pf-nasc" type="date"></div>
+        <div class="form-group span-2"><label>Endereço</label><input class="form-control" id="pf-endereco" placeholder="Endereço completo"></div>
+
+        <div class="form-section">Dados Profissionais</div>
         <div class="form-group"><label>Categoria *</label>
           <select class="form-control" id="pf-cat">
             <option value="">Selecione...</option>
@@ -532,8 +545,15 @@ textarea.form-control{resize:vertical;min-height:80px}
             <option value="08 às 17">08 às 17</option>
           </select>
         </div>
-        <div class="form-group"><label>Nº do Contrato</label><input class="form-control" id="pf-contrato" placeholder="Número do contrato"></div>
+        <div class="form-group"><label>Nº do Conselho</label><input class="form-control" id="pf-conselho" placeholder="Ex: CRM-SP 12345"></div>
+        <div class="form-group"><label>Validade do Conselho</label><input class="form-control" id="pf-conselho-val" type="date"></div>
+
+        <div class="form-section">Vínculo e Contrato</div>
+        <div class="form-group"><label>Equipe</label>
+          <select class="form-control" id="pf-equipe"><option value="">Selecione...</option></select>
+        </div>
         <div class="form-group"><label>Local de Lotação</label><input class="form-control" id="pf-lotacao" placeholder="Local de trabalho"></div>
+        <div class="form-group"><label>Nº do Contrato</label><input class="form-control" id="pf-contrato" placeholder="Número do contrato"></div>
         <div class="form-group"><label>Status do Vínculo</label>
           <select class="form-control" id="pf-status">
             <option value="Ativo">Ativo</option>
@@ -542,7 +562,9 @@ textarea.form-control{resize:vertical;min-height:80px}
             <option value="Licença">Licença</option>
           </select>
         </div>
-        <div class="form-group span-2"><label>Endereço</label><input class="form-control" id="pf-endereco" placeholder="Endereço completo"></div>
+        <div class="form-group"><label>Data de Início do Vínculo</label><input class="form-control" id="pf-inicio-vinc" type="date"></div>
+        <div class="form-group"><label>Data de Fim do Contrato</label><input class="form-control" id="pf-fim-contrato" type="date"></div>
+
       </div>
     </div>
     <div class="modal-footer">
@@ -949,6 +971,8 @@ function teamCard(e) {
       <div class="team-card-body">
         ${e.LOCAL_BASE ? `<div class="team-info-row"><i class="ri-map-pin-2-line"></i>${e.LOCAL_BASE}</div>` : ''}
         ${e.TELEFONE ? `<div class="team-info-row"><i class="ri-phone-line"></i>${e.TELEFONE}</div>` : ''}
+        ${e.TELEFONE2 ? `<div class="team-info-row"><i class="ri-phone-line"></i>${e.TELEFONE2}</div>` : ''}
+        ${e.TELEFONE3 ? `<div class="team-info-row"><i class="ri-phone-line"></i>${e.TELEFONE3}</div>` : ''}
         ${e.equipeIrmaNome ? `<div class="team-info-row">🤝 Irmã: <strong>${e.equipeIrmaNome}</strong></div>` : ''}
         ${e.CENTROS_SAUDE ? `<div class="team-info-row" style="font-size:11px">🏥 ${e.CENTROS_SAUDE}</div>` : ''}
         <div class="team-profs">
@@ -970,8 +994,8 @@ async function saveEquipe() {
 
   const data = {
     id: S.editingId, nome, tipo, localBase: local, regional,
-    telefone: v('eq-tel'), email: v('eq-email'),
-    equipeIrma: v('eq-irma'), centrosSaude: v('eq-centros')
+    telefone: v('eq-tel'), telefone2: v('eq-tel2'), telefone3: v('eq-tel3'),
+    email: v('eq-email'), equipeIrma: v('eq-irma'), centrosSaude: v('eq-centros')
   };
 
   const res = await api(S.editingId ? 'updateEquipe' : 'addEquipe', data);
@@ -1040,10 +1064,12 @@ async function saveProfissional() {
 
   const data = {
     id: S.editingId, nome, email: v('pf-email'), telefone: v('pf-tel'),
-    dataNascimento: v('pf-nasc'), endereco: v('pf-endereco'),
+    cpf: v('pf-cpf'), dataNascimento: v('pf-nasc'), endereco: v('pf-endereco'),
     categoria: cat, horarioTrabalho: v('pf-horario'),
-    numeroContrato: v('pf-contrato'), localLotacao: v('pf-lotacao'),
-    statusVinculo: v('pf-status')
+    numeroConselho: v('pf-conselho'), validadeConselho: v('pf-conselho-val'),
+    equipe: v('pf-equipe'), localLotacao: v('pf-lotacao'),
+    numeroContrato: v('pf-contrato'), statusVinculo: v('pf-status'),
+    dataInicioVinculo: v('pf-inicio-vinc'), dataFimContrato: v('pf-fim-contrato')
   };
 
   const res = await api(S.editingId ? 'updateProfissional' : 'addProfissional', data);
@@ -1076,18 +1102,19 @@ function openDetalheProf(id) {
 
   document.getElementById('detalhe-prof-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
-      <div style="width:56px;height:56px;border-radius:50%;background:var(--navy);color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif">${p.NOME.charAt(0)}</div>
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--green-d);color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif">${p.NOME.charAt(0)}</div>
       <div>
-        <div style="font-size:20px;font-weight:800;font-family:'Syne',sans-serif">${p.NOME}</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Nunito',sans-serif">${p.NOME}</div>
         <div style="display:flex;gap:8px;margin-top:4px"><span class="badge badge-blue">${p.CATEGORIA}</span>${statusBadgeHtml(p.STATUS_VINCULO)}</div>
       </div>
     </div>
     <div class="detail-section">
       <h4>Dados Pessoais</h4>
       <div class="detail-grid">
+        <div class="detail-item"><label>CPF</label><p>${p.CPF||'—'}</p></div>
+        <div class="detail-item"><label>Nascimento</label><p>${formatDate(p.DATA_NASCIMENTO)}</p></div>
         <div class="detail-item"><label>E-mail</label><p>${p.EMAIL||'—'}</p></div>
         <div class="detail-item"><label>Telefone</label><p>${p.TELEFONE||'—'}</p></div>
-        <div class="detail-item"><label>Nascimento</label><p>${formatDate(p.DATA_NASCIMENTO)}</p></div>
         <div class="detail-item"><label>Endereço</label><p>${p.ENDERECO||'—'}</p></div>
       </div>
     </div>
@@ -1095,8 +1122,13 @@ function openDetalheProf(id) {
       <h4>Dados Profissionais</h4>
       <div class="detail-grid">
         <div class="detail-item"><label>Horário</label><p>${p.HORARIO_TRABALHO||'—'}</p></div>
-        <div class="detail-item"><label>Nº Contrato</label><p>${p.NUMERO_CONTRATO||'—'}</p></div>
+        <div class="detail-item"><label>Nº Conselho</label><p>${p.NUMERO_CONSELHO||'—'}</p></div>
+        <div class="detail-item"><label>Validade do Conselho</label><p>${formatDate(p.VALIDADE_CONSELHO)}</p></div>
+        <div class="detail-item"><label>Equipe</label><p>${p.EQUIPE_NOME || (p.EQUIPE_ID ? p.EQUIPE_ID : '—')}</p></div>
         <div class="detail-item"><label>Local de Lotação</label><p>${p.LOCAL_LOTACAO||'—'}</p></div>
+        <div class="detail-item"><label>Nº Contrato</label><p>${p.NUMERO_CONTRATO||'—'}</p></div>
+        <div class="detail-item"><label>Início do Vínculo</label><p>${formatDate(p.DATA_INICIO_VINCULO)}</p></div>
+        <div class="detail-item"><label>Fim do Contrato</label><p>${formatDate(p.DATA_FIM_CONTRATO)}</p></div>
       </div>
     </div>
     <div class="detail-section">
@@ -1381,31 +1413,44 @@ function openModal(type, id = null) {
       const e = S.equipes.find(x => x.ID === id);
       if (e) {
         setVal('eq-nome', e.NOME); setVal('eq-tipo', e.TIPO); setVal('eq-regional', e.REGIONAL);
-        setVal('eq-local', e.LOCAL_BASE); setVal('eq-tel', e.TELEFONE); setVal('eq-email', e.EMAIL);
-        setVal('eq-centros', e.CENTROS_SAUDE); 
+        setVal('eq-local', e.LOCAL_BASE); setVal('eq-tel', e.TELEFONE);
+        setVal('eq-tel2', e.TELEFONE2); setVal('eq-tel3', e.TELEFONE3);
+        setVal('eq-email', e.EMAIL); setVal('eq-centros', e.CENTROS_SAUDE);
         document.getElementById('equipe-modal-title').textContent = 'Editar Equipe';
         setTimeout(() => setVal('eq-irma', e.EQUIPE_IRMA), 100);
       }
     } else {
-      clearForm(['eq-nome','eq-tipo','eq-regional','eq-local','eq-tel','eq-email','eq-irma','eq-centros']);
+      clearForm(['eq-nome','eq-tipo','eq-regional','eq-local','eq-tel','eq-tel2','eq-tel3','eq-email','eq-irma','eq-centros']);
       document.getElementById('equipe-modal-title').textContent = 'Nova Equipe';
     }
     showModal('equipe');
   }
 
   else if (type === 'profissional') {
+    const eqSel = document.getElementById('pf-equipe');
+    eqSel.innerHTML = '<option value="">Selecione uma equipe...</option>' +
+      S.equipes.map(e => `<option value="${e.ID}">${e.NOME}</option>`).join('');
     if (id) {
       const p = S.profissionais.find(x => x.ID === id);
       if (p) {
         setVal('pf-nome', p.NOME); setVal('pf-email', p.EMAIL); setVal('pf-tel', p.TELEFONE);
+        setVal('pf-cpf', p.CPF);
         setVal('pf-nasc', p.DATA_NASCIMENTO ? p.DATA_NASCIMENTO.substring(0,10) : '');
         setVal('pf-endereco', p.ENDERECO); setVal('pf-cat', p.CATEGORIA);
-        setVal('pf-horario', p.HORARIO_TRABALHO); setVal('pf-contrato', p.NUMERO_CONTRATO);
-        setVal('pf-lotacao', p.LOCAL_LOTACAO); setVal('pf-status', p.STATUS_VINCULO);
+        setVal('pf-horario', p.HORARIO_TRABALHO);
+        setVal('pf-conselho', p.NUMERO_CONSELHO);
+        setVal('pf-conselho-val', p.VALIDADE_CONSELHO ? p.VALIDADE_CONSELHO.substring(0,10) : '');
+        setVal('pf-equipe', p.EQUIPE_ID || p.EQUIPE || '');
+        setVal('pf-lotacao', p.LOCAL_LOTACAO); setVal('pf-contrato', p.NUMERO_CONTRATO);
+        setVal('pf-status', p.STATUS_VINCULO);
+        setVal('pf-inicio-vinc', p.DATA_INICIO_VINCULO ? p.DATA_INICIO_VINCULO.substring(0,10) : '');
+        setVal('pf-fim-contrato', p.DATA_FIM_CONTRATO ? p.DATA_FIM_CONTRATO.substring(0,10) : '');
         document.getElementById('prof-modal-title').textContent = 'Editar Profissional';
       }
     } else {
-      clearForm(['pf-nome','pf-email','pf-tel','pf-nasc','pf-endereco','pf-cat','pf-horario','pf-contrato','pf-lotacao','pf-status']);
+      clearForm(['pf-nome','pf-email','pf-tel','pf-cpf','pf-nasc','pf-endereco','pf-cat',
+        'pf-horario','pf-conselho','pf-conselho-val','pf-equipe','pf-lotacao',
+        'pf-contrato','pf-status','pf-inicio-vinc','pf-fim-contrato']);
       document.getElementById('prof-modal-title').textContent = 'Novo Profissional';
     }
     showModal('profissional');
