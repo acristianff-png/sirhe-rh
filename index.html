@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiRHE — Sistema de RH EMAD/EMAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:       #0D1B2A;
+  --navy-l:     #152234;
+  --navy-m:     #1E3048;
+  --teal:       #0EA47A;
+  --teal-l:     #12C792;
+  --teal-pale:  #D1FAE5;
+  --amber:      #F59E0B;
+  --amber-pale: #FEF3C7;
+  --red:        #EF4444;
+  --red-pale:   #FEE2E2;
+  --blue:       #3B82F6;
+  --blue-pale:  #DBEAFE;
+  --purple:     #8B5CF6;
+  --purple-pale:#EDE9FE;
+  --bg:         #EFF3F9;
+  --card:       #FFFFFF;
+  --text:       #111827;
+  --muted:      #6B7280;
+  --border:     #E5E7EB;
+  --sw:         260px;
+  --r:          10px;
+  --sh:         0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --sh-md:      0 4px 16px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+h1,h2,h3,h4{font-family:'Syne',sans-serif;font-weight:700}
+button{cursor:pointer;font-family:'DM Sans',sans-serif}
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:14px}
+
+/* ─── LOGIN ─── */
+#login-screen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s}
+.login-box{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:48px 40px;width:100%;max-width:420px;text-align:center}
+.login-logo{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:4px}
+.login-logo span{color:var(--teal-l)}
+.login-sub{color:rgba(255,255,255,.5);font-size:13px;margin-bottom:36px}
+.login-box input{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:12px 16px;color:#fff;margin-bottom:12px;outline:none;transition:.2s}
+.login-box input::placeholder{color:rgba(255,255,255,.35)}
+.login-box input:focus{border-color:var(--teal-l);background:rgba(255,255,255,.12)}
+.btn-login{width:100%;background:var(--teal);color:#fff;border:none;border-radius:8px;padding:13px;font-weight:600;font-size:15px;margin-top:8px;transition:.2s;font-family:'Syne',sans-serif}
+.btn-login:hover{background:var(--teal-l);transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,164,122,.4)}
+.login-err{color:#fc8181;font-size:13px;margin-top:12px;min-height:20px}
+
+/* ─── LAYOUT ─── */
+#app{display:flex;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--navy);display:flex;flex-direction:column;z-index:100;transition:.3s}
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#fff;letter-spacing:-.5px}
+.sidebar-logo span{color:var(--teal-l)}
+.sidebar-user{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{color:#fff;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{color:rgba(255,255,255,.4);font-size:11px}
+nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-label{color:rgba(255,255,255,.3);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:12px 10px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;cursor:pointer;transition:.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:rgba(14,164,122,.2);color:var(--teal-l)}
+.nav-item.active svg path,.nav-item.active svg rect,.nav-item.active svg circle,.nav-item.active svg polyline{stroke:var(--teal-l)}
+.sidebar-footer{padding:12px 10px;border-top:1px solid rgba(255,255,255,.07)}
+.btn-logout{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;background:none;border:none;width:100%;transition:.15s}
+.btn-logout:hover{background:rgba(239,68,68,.15);color:#fc8181}
+
+.main{margin-left:var(--sw);flex:1;padding:28px;overflow-x:hidden}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.5px}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px}
+section{display:none}
+section.active{display:block}
+
+/* ─── CARDS ─── */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.metric-card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;right:-12px;top:-12px;width:64px;height:64px;border-radius:50%;opacity:.08}
+.metric-card.teal::before{background:var(--teal)}
+.metric-card.amber::before{background:var(--amber)}
+.metric-card.red::before{background:var(--red)}
+.metric-card.blue::before{background:var(--blue)}
+.metric-card.purple::before{background:var(--purple)}
+.metric-icon{font-size:24px;margin-bottom:12px}
+.metric-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--navy);line-height:1}
+.metric-lbl{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500}
+
+/* ─── ALERTS ─── */
+.alerts-box{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:24px}
+.alerts-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:8px;margin-bottom:6px;font-size:13px}
+.alert-item.danger{background:var(--red-pale);color:#991B1B}
+.alert-item.warning{background:var(--amber-pale);color:#92400E}
+.alert-item.info{background:var(--blue-pale);color:#1E40AF}
+.alert-item .alert-date{font-size:11px;opacity:.7;margin-top:2px}
+
+/* ─── TOOLBAR ─── */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0 12px;flex:1;min-width:200px;max-width:320px}
+.search-box input{border:none;outline:none;background:none;padding:9px 0;width:100%;font-size:13px;color:var(--text)}
+.search-box svg{color:var(--muted);flex-shrink:0}
+.filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;color:var(--text)}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;border:none;transition:.15s;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:var(--teal-l);box-shadow:0 4px 12px rgba(14,164,122,.3)}
+.btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:var(--red-pale);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-icon{padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--muted)}
+.btn-icon:hover{background:var(--border);color:var(--text)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ─── TABLE ─── */
+.table-wrap{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--navy)}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:600;color:rgba(255,255,255,.8);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFD}
+.td-actions{display:flex;gap:6px;justify-content:flex-end}
+
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-teal{background:var(--teal-pale);color:#065F46}
+.badge-red{background:var(--red-pale);color:#991B1B}
+.badge-amber{background:var(--amber-pale);color:#92400E}
+.badge-blue{background:var(--blue-pale);color:#1E40AF}
+.badge-purple{background:var(--purple-pale);color:#5B21B6}
+.badge-gray{background:#F3F4F6;color:#374151}
+
+/* ─── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:slideUp .2s ease}
+.modal-lg{max-width:720px}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card);z-index:1}
+.modal-title{font-size:16px;font-weight:700;font-family:'Syne',sans-serif}
+.modal-close{background:var(--bg);border:1px solid var(--border);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;line-height:1;color:var(--muted);transition:.15s}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--card)}
+
+/* ─── FORM ─── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.cols-1{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.span-2{grid-column:span 2}
+label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.form-control{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;width:100%;outline:none;transition:.15s;color:var(--text);font-size:13px}
+.form-control:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(14,164,122,.1)}
+.form-control:disabled{opacity:.5;cursor:not-allowed}
+select.form-control{cursor:pointer}
+textarea.form-control{resize:vertical;min-height:80px}
+.form-err{color:var(--red);font-size:12px;margin-top:4px;padding:8px 12px;background:var(--red-pale);border-radius:6px;display:none}
+.form-err.show{display:block}
+
+/* ─── TEAM CARD ─── */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.team-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;transition:.2s}
+.team-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.team-card-header{padding:16px 18px;background:var(--navy);color:#fff;display:flex;align-items:flex-start;justify-content:space-between}
+.team-card-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
+.team-card-type{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+.team-card-body{padding:16px 18px}
+.team-info-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:6px}
+.team-info-row svg{width:14px;height:14px;flex-shrink:0;color:var(--teal)}
+.team-profs{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.team-prof-chip{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 8px 3px 4px;font-size:11px;margin:2px}
+.chip-avatar{width:18px;height:18px;border-radius:50%;background:var(--teal);color:#fff;font-size:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:20px;width:fit-content}
+.tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);transition:.15s}
+.tab.active{background:var(--card);color:var(--navy);font-weight:600;box-shadow:var(--sh)}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:16px;color:var(--text);margin-bottom:6px}
+.empty p{font-size:13px}
+
+/* ─── TOAST ─── */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--navy);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--sh-md);animation:toastIn .3s ease;pointer-events:all;max-width:340px;display:flex;align-items:center;gap:10px}
+.toast.success{background:#065F46;border-left:3px solid var(--teal-l)}
+.toast.error{background:#991B1B;border-left:3px solid var(--red)}
+.toast.warning{background:#92400E;border-left:3px solid var(--amber)}
+@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(100%)}}
+
+/* ─── LOADING ─── */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--muted)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin-right:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── DETAIL PANEL ─── */
+.detail-section{margin-bottom:20px}
+.detail-section h4{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.detail-item label{font-size:11px;color:var(--muted);font-weight:600}
+.detail-item p{font-size:13px;color:var(--text);margin-top:2px}
+
+/* ─── CALENDAR MINI ─── */
+.cal-range{display:inline-flex;align-items:center;gap:6px;background:var(--teal-pale);color:#065F46;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0;padding:16px}
+  .form-grid{grid-template-columns:1fr}
+  .form-group.span-2{grid-column:span 1}
+  .metrics{grid-template-columns:1fr 1fr}
+  .team-grid{grid-template-columns:1fr}
+}
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--teal);border-radius:99px;transition:.5s}
+
+/* ─── CATEGORY DOT ─── */
+.cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+
+/* ─── VINCULOS ─── */
+.vinculo-row{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.vinculo-info{flex:1}
+.vinculo-equipe{font-weight:600;font-size:13px}
+.vinculo-meta{font-size:11px;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- ─── LOGIN ─── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Si<span>RHE</span></div>
+    <p class="login-sub">Sistema de RH — EMAD / EMAP</p>
+    <input type="email" id="login-email" placeholder="E-mail institucional" autocomplete="username">
+    <input type="password" id="login-pass" placeholder="Senha" autocomplete="current-password">
+    <button class="btn-login" onclick="doLogin()">Entrar no Sistema</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ─── APP ─── -->
+<div id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Si<span>RHE</span></div>
+      <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px">EMAD · EMAP · RH</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">Carregando...</div>
+        <div class="user-role" id="user-role">Gestor</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-label">Menu Principal</div>
+      <button class="nav-item active" onclick="showSection('dashboard')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showSection('equipes')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+        Equipes
+      </button>
+      <button class="nav-item" onclick="showSection('profissionais')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        Profissionais
+      </button>
+      <button class="nav-item" onclick="showSection('ferias')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+        Férias
+      </button>
+      <button class="nav-item" onclick="showSection('ocorrencias')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        Ocorrências
+      </button>
+      <div class="nav-label" id="nav-admin-label" style="display:none">Administração</div>
+      <button class="nav-item" id="nav-gestores" onclick="showSection('gestores')" style="display:none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+        Gestores
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section id="section-dashboard" class="active">
+      <div class="page-header">
+        <div><h1 class="page-title">Dashboard</h1><p class="page-sub" id="dash-date">Carregando...</p></div>
+        <button class="btn btn-secondary" onclick="loadDashboard()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+          Atualizar
+        </button>
+      </div>
+      <div class="metrics" id="dash-metrics"><div class="loading"><div class="spinner"></div>Carregando métricas...</div></div>
+      <div id="dash-alerts"></div>
+      <div id="dash-charts"></div>
+    </section>
+
+    <!-- EQUIPES -->
+    <section id="section-equipes">
+      <div class="page-header">
+        <div><h1 class="page-title">Equipes</h1><p class="page-sub">Gerencie as equipes EMAD e EMAP</p></div>
+        <button class="btn btn-primary" onclick="openModal('equipe')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Nova Equipe
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg><input type="text" placeholder="Buscar equipe..." oninput="filterEquipes(this.value)" id="search-equipes"></div>
+        <select class="filter-select" onchange="filterEquipes(document.getElementById('search-equipes').value)" id="filter-equipes-tipo">
+          <option value="">Todos os tipos</option>
+          <option value="Hospitalar">Hospitalar</option>
+          <option value="UPA">UPA</option>
+        </select>
+      </div>
+      <div id="equipes-list"><div class="loading"><div class="spinner"></div>Carregando equipes...</div></div>
+    </section>
+
+    <!-- PROFISSIONAIS -->
+    <section id="section-profissionais">
+      <div class="page-header">
+        <div><h1 class="page-title">Profissionais</h1><p class="page-sub">Cadastros e vínculos</p></div>
+        <button class="btn btn-primary" onclick="openModal('profissional')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Novo Profissional
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg><input type="text" placeholder="Buscar profissional..." oninput="filterProfs(this.value)" id="search-profs"></div>
+        <select class="filter-select" onchange="filterProfs(document.getElementById('search-profs').value)" id="filter-profs-cat">
+          <option value="">Todas as categorias</option>
+        </select>
+        <select class="filter-select" onchange="filterProfs(document.getElementById('search-profs').value)" id="filter-profs-status">
+          <option value="">Todos os status</option>
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+          <option value="Afastado">Afastado</option>
+          <option value="Licença">Licença</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>Categoria</th><th>Equipe(s)</th><th>Horário</th><th>Status</th><th>Contrato</th><th style="text-align:right">Ações</th></tr></thead>
+          <tbody id="profs-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FÉRIAS -->
+    <section id="section-ferias">
+      <div class="page-header">
+        <div><h1 class="page-title">Controle de Férias</h1><p class="page-sub">Programação e aprovação de férias</p></div>
+        <button class="btn btn-primary" onclick="openModal('ferias')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Programar Férias
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg><input type="text" placeholder="Buscar profissional..." oninput="filterFerias(this.value)" id="search-ferias"></div>
+        <select class="filter-select" onchange="filterFerias(document.getElementById('search-ferias').value)" id="filter-ferias-status">
+          <option value="">Todos os status</option>
+          <option value="Programado">Programado</option>
+          <option value="Aprovado">Aprovado</option>
+          <option value="Em curso">Em curso</option>
+          <option value="Concluído">Concluído</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Profissional</th><th>Categoria</th><th>Equipe(s)</th><th>Período</th><th>Duração</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
+          <tbody id="ferias-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- OCORRÊNCIAS -->
+    <section id="section-ocorrencias">
+      <div class="page-header">
+        <div><h1 class="page-title">Ocorrências</h1><p class="page-sub">Advertências, apontamentos e registros</p></div>
+        <button class="btn btn-primary" onclick="openModal('ocorrencia')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Registrar Ocorrência
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg><input type="text" placeholder="Buscar..." oninput="filterOcs(this.value)" id="search-ocs"></div>
+        <select class="filter-select" onchange="filterOcs(document.getElementById('search-ocs').value)" id="filter-ocs-tipo">
+          <option value="">Todos os tipos</option>
+          <option value="Advertência Verbal">Advertência Verbal</option>
+          <option value="Advertência Escrita">Advertência Escrita</option>
+          <option value="Termo de Apontamento">Termo de Apontamento</option>
+          <option value="Suspensão">Suspensão</option>
+          <option value="Elogio">Elogio</option>
+          <option value="Licença Médica">Licença Médica</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Profissional</th><th>Tipo</th><th>Descrição</th><th>Data</th><th>Registrado por</th><th style="text-align:right">Ações</th></tr></thead>
+          <tbody id="ocs-tbody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- GESTORES -->
+    <section id="section-gestores">
+      <div class="page-header">
+        <div><h1 class="page-title">Gestores do Sistema</h1><p class="page-sub">Usuários com acesso ao sistema</p></div>
+        <button class="btn btn-primary" onclick="openModal('gestor')">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Novo Gestor
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
+          <tbody id="gestores-tbody"><tr><td colspan="5"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ─── MODALS ─── -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+
+  <!-- EQUIPE FORM -->
+  <div class="modal" id="modal-equipe" style="display:none">
+    <div class="modal-header"><span class="modal-title" id="equipe-modal-title">Nova Equipe</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-err" id="equipe-err"></div>
+      <div class="form-grid">
+        <div class="form-group span-2"><label>Nome da Equipe *</label><input class="form-control" id="eq-nome" placeholder="Ex: EMAD Norte"></div>
+        <div class="form-group"><label>Tipo *</label><select class="form-control" id="eq-tipo"><option value="">Selecione...</option><option value="Hospitalar">Hospitalar</option><option value="UPA">UPA</option></select></div>
+        <div class="form-group"><label>Regional *</label><input class="form-control" id="eq-regional" placeholder="Ex: Regional Centro"></div>
+        <div class="form-group span-2"><label>Local da Base *</label><input class="form-control" id="eq-local" placeholder="Nome do hospital ou UPA"></div>
+        <div class="form-group"><label>Telefone</label><input class="form-control" id="eq-tel" placeholder="(00) 00000-0000"></div>
+        <div class="form-group"><label>E-mail</label><input class="form-control" id="eq-email" placeholder="equipe@dominio.gov.br"></div>
+        <div class="form-group"><label>Equipe Irmã</label><select class="form-control" id="eq-irma"><option value="">Nenhuma</option></select></div>
+        <div class="form-group"><label>Centros de Saúde</label><input class="form-control" id="eq-centros" placeholder="CS A, CS B, CS C"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEquipe()">Salvar Equipe</button>
+    </div>
+  </div>
+
+  <!-- PROFISSIONAL FORM -->
+  <div class="modal modal-lg" id="modal-profissional" style="display:none">
+    <div class="modal-header"><span class="modal-title" id="prof-modal-title">Novo Profissional</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-err" id="prof-err"></div>
+      <div class="form-grid">
+        <div class="form-group span-2"><label>Nome Completo *</label><input class="form-control" id="pf-nome" placeholder="Nome completo"></div>
+        <div class="form-group"><label>E-mail</label><input class="form-control" id="pf-email" type="email" placeholder="email@dominio.com"></div>
+        <div class="form-group"><label>Telefone</label><input class="form-control" id="pf-tel" placeholder="(00) 00000-0000"></div>
+        <div class="form-group"><label>Data de Nascimento</label><input class="form-control" id="pf-nasc" type="date"></div>
+        <div class="form-group"><label>Categoria *</label>
+          <select class="form-control" id="pf-cat">
+            <option value="">Selecione...</option>
+            <optgroup label="EMAD">
+              <option value="Médico">Médico</option>
+              <option value="Enfermeiro">Enfermeiro</option>
+              <option value="Técnico em Enfermagem">Técnico em Enfermagem</option>
+            </optgroup>
+            <optgroup label="EMAP">
+              <option value="Assistente Social">Assistente Social</option>
+              <option value="Fisioterapeuta">Fisioterapeuta</option>
+              <option value="Nutricionista">Nutricionista</option>
+              <option value="Terapeuta Ocupacional">Terapeuta Ocupacional</option>
+              <option value="Psicólogo">Psicólogo</option>
+              <option value="Fonoaudiólogo">Fonoaudiólogo</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group"><label>Horário de Trabalho</label>
+          <select class="form-control" id="pf-horario">
+            <option value="">Selecione...</option>
+            <option value="07 às 13">07 às 13</option>
+            <option value="07 às 19">07 às 19</option>
+            <option value="13 às 19">13 às 19</option>
+            <option value="19 às 07">19 às 07</option>
+            <option value="08 às 17">08 às 17</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Nº do Contrato</label><input class="form-control" id="pf-contrato" placeholder="Número do contrato"></div>
+        <div class="form-group"><label>Local de Lotação</label><input class="form-control" id="pf-lotacao" placeholder="Local de trabalho"></div>
+        <div class="form-group"><label>Status do Vínculo</label>
+          <select class="form-control" id="pf-status">
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+            <option value="Afastado">Afastado</option>
+            <option value="Licença">Licença</option>
+          </select>
+        </div>
+        <div class="form-group span-2"><label>Endereço</label><input class="form-control" id="pf-endereco" placeholder="Endereço completo"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProfissional()">Salvar Profissional</button>
+    </div>
+  </div>
+
+  <!-- VÍNCULO FORM -->
+  <div class="modal" id="modal-vinculo" style="display:none">
+    <div class="modal-header"><span class="modal-title">Adicionar Vínculo</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-err" id="vinc-err"></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Vincule este profissional a uma equipe. Máximo 2 vínculos ativos. Turnos diferentes entre vínculos.</p>
+      <div class="form-grid cols-1">
+        <div class="form-group"><label>Equipe *</label><select class="form-control" id="vc-equipe"><option value="">Selecione...</option></select></div>
+        <div class="form-group"><label>Turno *</label>
+          <select class="form-control" id="vc-turno">
+            <option value="">Selecione...</option>
+            <option value="Manhã">Manhã</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Noite">Noite</option>
+            <option value="Integral">Integral</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Tipo de Vínculo</label>
+          <select class="form-control" id="vc-tipo">
+            <option value="Efetivo">Efetivo</option>
+            <option value="Contrato">Contrato</option>
+            <option value="Temporário">Temporário</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Nº do Contrato</label><input class="form-control" id="vc-contrato" placeholder="Número ou código do contrato"></div>
+        <div class="form-group"><label>Data de Início</label><input class="form-control" id="vc-inicio" type="date"></div>
+        <div class="form-group"><label>Data de Fim (contrato)</label><input class="form-control" id="vc-fim" type="date"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveVinculo()">Vincular</button>
+    </div>
+  </div>
+
+  <!-- FÉRIAS FORM -->
+  <div class="modal" id="modal-ferias" style="display:none">
+    <div class="modal-header"><span class="modal-title" id="ferias-modal-title">Programar Férias</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-err" id="ferias-err"></div>
+      <div class="form-grid cols-1">
+        <div class="form-group"><label>Profissional *</label><select class="form-control" id="frs-prof"><option value="">Selecione...</option></select></div>
+        <div class="form-group"><label>Data de Início *</label><input class="form-control" id="frs-inicio" type="date"></div>
+        <div class="form-group"><label>Data de Fim *</label><input class="form-control" id="frs-fim" type="date"></div>
+        <div class="form-group"><label>Status</label>
+          <select class="form-control" id="frs-status">
+            <option value="Programado">Programado</option>
+            <option value="Aprovado">Aprovado</option>
+            <option value="Em curso">Em curso</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Observações</label><textarea class="form-control" id="frs-obs" placeholder="Observações adicionais..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveFerias()">Salvar</button>
+    </div>
+  </div>
+
+  <!-- OCORRÊNCIA FORM -->
+  <div class="modal" id="modal-ocorrencia" style="display:none">
+    <div class="modal-header"><span class="modal-title" id="oc-modal-title">Registrar Ocorrência</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-err" id="oc-err"></div>
+      <div class="form-grid cols-1">
+        <div class="form-group"><label>Profissional *</label><select class="form-control" id="oc-prof"><option value="">Selecione...</option></select></div>
+        <div class="form-group"><label>Tipo *</label>
+          <select class="form-control" id="oc-tipo">
+            <option value="">Selecione...</option>
+            <option value="Advertência Verbal">Advertência Verbal</option>
+            <option value="Advertência Escrita">Advertência Escrita</option>
+            <option value="Termo de Apontamento">Termo de Apontamento</option>
+            <option value="Suspensão">Suspensão</option>
+            <option value="Elogio">Elogio</option>
+            <option value="Licença Médica">Licença Médica</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Data da Ocorrência *</label><input class="form-control" id="oc-data" type="date"></div>
+        <div class="form-group"><label>Descrição *</label><textarea class="form-control" id="oc-desc" rows="4" placeholder="Descreva a ocorrência detalhadamente..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveOcorrencia()">Registrar</button>
+    </div>
+  </div>
+
+  <!-- GESTOR FORM -->
+  <div class="modal" id="modal-gestor" style="display:none">
+    <div class="modal-header"><span class="modal-title">Novo Gestor</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-err" id="gestor-err"></div>
+      <div class="form-grid cols-1">
+        <div class="form-group"><label>Nome Completo *</label><input class="form-control" id="gt-nome" placeholder="Nome do gestor"></div>
+        <div class="form-group"><label>E-mail *</label><input class="form-control" id="gt-email" type="email" placeholder="email@dominio.gov.br"></div>
+        <div class="form-group"><label>Senha Inicial</label><input class="form-control" id="gt-senha" type="password" placeholder="Deixe em branco para usar Mudar@123"></div>
+        <div class="form-group"><label>Perfil</label>
+          <select class="form-control" id="gt-perfil">
+            <option value="gestor">Gestor</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px">⚠️ Senha padrão: <strong>Mudar@123</strong>. O gestor deve alterar no primeiro acesso.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGestor()">Criar Gestor</button>
+    </div>
+  </div>
+
+  <!-- DETALHES PROFISSIONAL -->
+  <div class="modal modal-lg" id="modal-detalhe-prof" style="display:none">
+    <div class="modal-header"><span class="modal-title">Detalhes do Profissional</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body" id="detalhe-prof-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── TOAST ─── -->
+<div id="toast-container"></div>
+
+<script>
+// ================================================================
+// CONFIG — Substitua pela URL do seu Apps Script publicado
+// ================================================================
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlof4iMH535JFyK_PjZAm5DOu0L0eQZLq58hHjO-aWLJbDLJK6wPUNCVjZgl2MUXqZ-g/exec';
+
+// ================================================================
+// STATE
+// ================================================================
+const S = {
+  token: localStorage.getItem('sirhe_token'),
+  user: tryParse(localStorage.getItem('sirhe_user')),
+  profissionais: [], equipes: [], vinculos: [], ferias: [], ocorrencias: [],
+  editingId: null, editingProf: null,
+};
+
+function tryParse(s){ try{ return JSON.parse(s) }catch(e){ return null } }
+
+// ================================================================
+// API
+// ================================================================
+async function api(action, data = {}) {
+  try {
+    const isRead = ['getDashboard','getProfissionais','getEquipes','getVinculos',
+                    'getFerias','getOcorrencias','getAlertas','getGestores'].includes(action);
+    if (isRead) {
+      const r = await fetch(`${SCRIPT_URL}?action=${action}&token=${S.token}`);
+      return await r.json();
+    }
+    const body = 'data=' + encodeURIComponent(JSON.stringify({ action, token: S.token, ...data }));
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body
+    });
+    return await r.json();
+  } catch(e) {
+    return { success: false, error: 'Erro de conexão: ' + e.message };
+  }
+}
+
+// ================================================================
+// AUTH
+// ================================================================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = '';
+  if (!email || !senha) { errEl.textContent = 'Preencha e-mail e senha.'; return; }
+
+  const btn = document.querySelector('.btn-login');
+  btn.textContent = 'Entrando...'; btn.disabled = true;
+
+  const res = await api('login', { email, senha });
+  btn.textContent = 'Entrar no Sistema'; btn.disabled = false;
+
+  if (!res.success) { errEl.textContent = res.error; return; }
+
+  S.token = res.token; S.user = res.user;
+  localStorage.setItem('sirhe_token', res.token);
+  localStorage.setItem('sirhe_user', JSON.stringify(res.user));
+  initApp();
+}
+
+function doLogout() {
+  localStorage.removeItem('sirhe_token'); localStorage.removeItem('sirhe_user');
+  S.token = null; S.user = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// Login on Enter
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ================================================================
+// INIT
+// ================================================================
+async function initApp() {
+  document.getElementById('login-screen').style.opacity = '0';
+  setTimeout(() => { document.getElementById('login-screen').style.display = 'none'; }, 400);
+  document.getElementById('app').style.display = 'flex';
+
+  const u = S.user;
+  document.getElementById('user-name').textContent = u.nome;
+  document.getElementById('user-role').textContent = u.perfil === 'admin' ? 'Administrador' : 'Gestor';
+  document.getElementById('user-avatar').textContent = u.nome.charAt(0).toUpperCase();
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  if (u.perfil === 'admin') {
+    document.getElementById('nav-gestores').style.display = 'flex';
+    document.getElementById('nav-admin-label').style.display = 'block';
+  }
+
+  await loadAll();
+  showSection('dashboard');
+}
+
+async function loadAll() {
+  const [rp, re, rf, ro] = await Promise.all([
+    api('getProfissionais'), api('getEquipes'), api('getFerias'), api('getOcorrencias')
+  ]);
+  if(rp.success) S.profissionais = rp.data;
+  if(re.success) S.equipes = re.data;
+  if(rf.success) S.ferias = rf.data;
+  if(ro.success) S.ocorrencias = ro.data;
+  populateCategoryFilter();
+}
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  const btn = document.querySelector(`.nav-item[onclick="showSection('${id}')"]`);
+  if (btn) btn.classList.add('active');
+
+  const loaders = {
+    dashboard: loadDashboard,
+    equipes: renderEquipes,
+    profissionais: renderProfs,
+    ferias: renderFerias,
+    ocorrencias: renderOcs,
+    gestores: loadGestores
+  };
+  if (loaders[id]) loaders[id]();
+}
+
+// ================================================================
+// DASHBOARD
+// ================================================================
+async function loadDashboard() {
+  const res = await api('getDashboard');
+  if (!res.success) { toast('Erro ao carregar dashboard', 'error'); return; }
+  const d = res.data;
+
+  // Metrics
+  const cats = d.porCategoria || {};
+  const catHtml = Object.entries(cats).map(([k,v]) => `<span style="font-size:12px;color:var(--muted)">${k}: <strong>${v}</strong></span>`).join('  ·  ');
+
+  document.getElementById('dash-metrics').innerHTML = `
+    <div class="metric-card teal">
+      <div class="metric-icon">👥</div>
+      <div class="metric-val">${d.totalProfissionais}</div>
+      <div class="metric-lbl">Profissionais Ativos</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-icon">🔗</div>
+      <div class="metric-val">${d.vinculosAtivos}</div>
+      <div class="metric-lbl">Vínculos Ativos</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-icon">🏖️</div>
+      <div class="metric-val">${d.emFerias}</div>
+      <div class="metric-lbl">Em Férias Hoje</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-icon">⚠️</div>
+      <div class="metric-val">${d.alertas}</div>
+      <div class="metric-lbl">Alertas Pendentes</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-icon">📅</div>
+      <div class="metric-val">${d.feriasFuturas}</div>
+      <div class="metric-lbl">Férias (próx. 60 dias)</div>
+    </div>
+  `;
+
+  // Alerts
+  const alertas = d.alertasList || [];
+  const alertHtml = alertas.length === 0
+    ? '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">✅ Nenhum alerta no momento</div>'
+    : alertas.map(a => `
+      <div class="alert-item ${a.nivel}">
+        <span style="font-size:18px">${a.icon}</span>
+        <div><div>${a.mensagem}</div><div class="alert-date">${formatDate(a.data)}</div></div>
+      </div>`).join('');
+
+  document.getElementById('dash-alerts').innerHTML = `
+    <div class="alerts-box">
+      <div class="alerts-title">⚡ Alertas e Avisos <span style="background:var(--red);color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;margin-left:4px">${alertas.length}</span></div>
+      ${alertHtml}
+      ${alertas.length > 0 ? '' : ''}
+    </div>`;
+
+  // Category breakdown
+  if (Object.keys(cats).length > 0) {
+    const chartHtml = Object.entries(cats).map(([cat, count]) => {
+      const total = d.totalProfissionais || 1;
+      const pct = Math.round((count / total) * 100);
+      const color = catColor(cat);
+      return `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:120px;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cat}</div>
+          <div style="flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:.5s"></div>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--navy);width:24px;text-align:right">${count}</div>
+        </div>`;
+    }).join('');
+    document.getElementById('dash-charts').innerHTML = `
+      <div class="card" style="max-width:500px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;font-family:'Syne',sans-serif">Profissionais por Categoria</div>
+        ${chartHtml}
+      </div>`;
+  }
+}
+
+function catColor(cat) {
+  const m = { 'Médico':'#3B82F6','Enfermeiro':'#0EA47A','Técnico em Enfermagem':'#10B981',
+    'Assistente Social':'#8B5CF6','Fisioterapeuta':'#F59E0B','Nutricionista':'#EC4899',
+    'Terapeuta Ocupacional':'#6366F1','Psicólogo':'#14B8A6','Fonoaudiólogo':'#F97316' };
+  return m[cat] || '#6B7280';
+}
+
+// ================================================================
+// EQUIPES
+// ================================================================
+function renderEquipes(filter = '') {
+  const tipo = document.getElementById('filter-equipes-tipo')?.value || '';
+  let equipes = S.equipes.filter(e => {
+    const match = e.NOME?.toLowerCase().includes(filter.toLowerCase()) ||
+                  e.LOCAL_BASE?.toLowerCase().includes(filter.toLowerCase());
+    const typeMatch = !tipo || e.TIPO === tipo;
+    return match && typeMatch;
+  });
+
+  if (equipes.length === 0) {
+    document.getElementById('equipes-list').innerHTML = `<div class="empty"><div class="empty-icon">🏥</div><h3>Nenhuma equipe cadastrada</h3><p>Clique em "Nova Equipe" para começar.</p></div>`;
+    return;
+  }
+
+  document.getElementById('equipes-list').innerHTML = `
+    <div class="team-grid">
+      ${equipes.map(e => teamCard(e)).join('')}
+    </div>`;
+}
+
+function teamCard(e) {
+  const profs = e.profissionais || [];
+  const turnoChips = {};
+  profs.forEach(p => { (turnoChips[p.turno] = turnoChips[p.turno] || []).push(p); });
+
+  const profsHtml = profs.length === 0
+    ? '<p style="font-size:12px;color:var(--muted)">Nenhum profissional vinculado</p>'
+    : profs.slice(0,6).map(p => `
+        <span class="team-prof-chip">
+          <span class="chip-avatar">${p.nome.charAt(0)}</span>
+          ${p.nome.split(' ')[0]}
+          <span style="font-size:10px;opacity:.6">(${p.turno||'?'})</span>
+        </span>`).join('') + (profs.length > 6 ? `<span class="team-prof-chip">+${profs.length-6}</span>` : '');
+
+  return `
+    <div class="team-card">
+      <div class="team-card-header">
+        <div>
+          <div class="team-card-name">${e.NOME}</div>
+          <div class="team-card-type">${e.TIPO || '—'} · ${e.REGIONAL || '—'}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-icon" onclick="openModal('equipe','${e.ID}')" title="Editar">✏️</button>
+          <button class="btn-icon" onclick="confirmDelete('equipe','${e.ID}','${e.NOME}')" title="Excluir">🗑️</button>
+        </div>
+      </div>
+      <div class="team-card-body">
+        ${e.LOCAL_BASE ? `<div class="team-info-row"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>${e.LOCAL_BASE}</div>` : ''}
+        ${e.TELEFONE ? `<div class="team-info-row"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>${e.TELEFONE}</div>` : ''}
+        ${e.equipeIrmaNome ? `<div class="team-info-row">🤝 Irmã: <strong>${e.equipeIrmaNome}</strong></div>` : ''}
+        ${e.CENTROS_SAUDE ? `<div class="team-info-row" style="font-size:11px">🏥 ${e.CENTROS_SAUDE}</div>` : ''}
+        <div class="team-profs">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px">PROFISSIONAIS (${profs.length})</div>
+          ${profsHtml}
+        </div>
+        <div style="text-align:right;margin-top:12px">
+          <button class="btn btn-sm btn-secondary" onclick="openVinculo('${e.ID}')">+ Vincular Profissional</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function filterEquipes(v) { renderEquipes(v); }
+
+async function saveEquipe() {
+  const nome = v('eq-nome'), tipo = v('eq-tipo'), local = v('eq-local'), regional = v('eq-regional');
+  if (!nome || !tipo || !local || !regional) { showErr('equipe-err', 'Preencha todos os campos obrigatórios.'); return; }
+
+  const data = {
+    id: S.editingId, nome, tipo, localBase: local, regional,
+    telefone: v('eq-tel'), email: v('eq-email'),
+    equipeIrma: v('eq-irma'), centrosSaude: v('eq-centros')
+  };
+
+  const res = await api(S.editingId ? 'updateEquipe' : 'addEquipe', data);
+  if (!res.success) { showErr('equipe-err', res.error); return; }
+  toast(S.editingId ? 'Equipe atualizada!' : 'Equipe criada!', 'success');
+  closeModal();
+  const re = await api('getEquipes');
+  if(re.success){ S.equipes = re.data; renderEquipes(); }
+}
+
+// ================================================================
+// PROFISSIONAIS
+// ================================================================
+function renderProfs(search = '') {
+  const cat = document.getElementById('filter-profs-cat')?.value || '';
+  const status = document.getElementById('filter-profs-status')?.value || '';
+
+  const filtered = S.profissionais.filter(p => {
+    const q = search.toLowerCase();
+    const matchSearch = !q || p.NOME?.toLowerCase().includes(q) || p.EMAIL?.toLowerCase().includes(q) || p.NUMERO_CONTRATO?.toLowerCase().includes(q);
+    const matchCat = !cat || p.CATEGORIA === cat;
+    const matchSt = !status || p.STATUS_VINCULO === status;
+    return matchSearch && matchCat && matchSt;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById('profs-tbody').innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">👤</div><h3>Nenhum profissional encontrado</h3><p>Ajuste os filtros ou cadastre um novo.</p></div></td></tr>`;
+    return;
+  }
+
+  document.getElementById('profs-tbody').innerHTML = filtered.map(p => {
+    const equipes = (p.vinculos||[]).map(v => `<span class="badge badge-gray" style="font-size:10px">${v.equipeNome}</span>`).join(' ');
+    const statusBadge = statusBadgeHtml(p.STATUS_VINCULO);
+    return `<tr>
+      <td><strong>${p.NOME}</strong><div style="font-size:11px;color:var(--muted)">${p.EMAIL||''}</div></td>
+      <td><span class="badge badge-blue">${p.CATEGORIA||'—'}</span></td>
+      <td>${equipes || '<span style="color:var(--muted);font-size:12px">Sem equipe</span>'}</td>
+      <td style="font-size:12px">${p.HORARIO_TRABALHO||'—'}</td>
+      <td>${statusBadge}</td>
+      <td style="font-size:12px">${p.NUMERO_CONTRATO||'—'}</td>
+      <td class="td-actions">
+        <button class="btn-icon btn-sm" onclick="openDetalheProf('${p.ID}')" title="Ver detalhes">👁️</button>
+        <button class="btn-icon btn-sm" onclick="openModal('profissional','${p.ID}')" title="Editar">✏️</button>
+        <button class="btn-icon btn-sm" onclick="confirmDelete('profissional','${p.ID}','${p.NOME}')" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterProfs(v) { renderProfs(v); }
+
+function populateCategoryFilter() {
+  const cats = [...new Set(S.profissionais.map(p => p.CATEGORIA).filter(Boolean))].sort();
+  const el = document.getElementById('filter-profs-cat');
+  if (el) el.innerHTML = '<option value="">Todas as categorias</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function statusBadgeHtml(s) {
+  const m = { 'Ativo':'badge-teal','Inativo':'badge-red','Afastado':'badge-amber','Licença':'badge-purple' };
+  return `<span class="badge ${m[s]||'badge-gray'}">${s||'—'}</span>`;
+}
+
+async function saveProfissional() {
+  const nome = v('pf-nome'), cat = v('pf-cat');
+  if (!nome || !cat) { showErr('prof-err', 'Nome e categoria são obrigatórios.'); return; }
+
+  const data = {
+    id: S.editingId, nome, email: v('pf-email'), telefone: v('pf-tel'),
+    dataNascimento: v('pf-nasc'), endereco: v('pf-endereco'),
+    categoria: cat, horarioTrabalho: v('pf-horario'),
+    numeroContrato: v('pf-contrato'), localLotacao: v('pf-lotacao'),
+    statusVinculo: v('pf-status')
+  };
+
+  const res = await api(S.editingId ? 'updateProfissional' : 'addProfissional', data);
+  if (!res.success) { showErr('prof-err', res.error); return; }
+  toast(S.editingId ? 'Profissional atualizado!' : 'Profissional cadastrado!', 'success');
+  closeModal();
+  const rp = await api('getProfissionais');
+  if(rp.success){ S.profissionais = rp.data; renderProfs(); populateCategoryFilter(); }
+}
+
+function openDetalheProf(id) {
+  const p = S.profissionais.find(x => x.ID === id);
+  if (!p) return;
+  S.editingProf = p;
+  const ocs = S.ocorrencias.filter(o => o.PROFISSIONAL_ID === id);
+  const frs = S.ferias.filter(f => f.PROFISSIONAL_ID === id);
+
+  const vincsHtml = (p.vinculos||[]).length === 0
+    ? '<p style="color:var(--muted);font-size:13px">Sem vínculos ativos</p>'
+    : (p.vinculos||[]).map(v => `
+        <div class="vinculo-row">
+          <div style="flex:1">
+            <div class="vinculo-equipe">${v.equipeNome}</div>
+            <div class="vinculo-meta">${v.TURNO||'—'} · ${v.TIPO_VINCULO||'—'} · Contrato: ${v.CONTRATO||'—'}
+              ${v.DATA_FIM ? ` · Vence: ${formatDate(v.DATA_FIM)}` : ''}
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="removeVinculoAction('${v.ID}','${id}')">Remover</button>
+        </div>`).join('');
+
+  document.getElementById('detalhe-prof-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--navy);color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif">${p.NOME.charAt(0)}</div>
+      <div>
+        <div style="font-size:20px;font-weight:800;font-family:'Syne',sans-serif">${p.NOME}</div>
+        <div style="display:flex;gap:8px;margin-top:4px"><span class="badge badge-blue">${p.CATEGORIA}</span>${statusBadgeHtml(p.STATUS_VINCULO)}</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h4>Dados Pessoais</h4>
+      <div class="detail-grid">
+        <div class="detail-item"><label>E-mail</label><p>${p.EMAIL||'—'}</p></div>
+        <div class="detail-item"><label>Telefone</label><p>${p.TELEFONE||'—'}</p></div>
+        <div class="detail-item"><label>Nascimento</label><p>${formatDate(p.DATA_NASCIMENTO)}</p></div>
+        <div class="detail-item"><label>Endereço</label><p>${p.ENDERECO||'—'}</p></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h4>Dados Profissionais</h4>
+      <div class="detail-grid">
+        <div class="detail-item"><label>Horário</label><p>${p.HORARIO_TRABALHO||'—'}</p></div>
+        <div class="detail-item"><label>Nº Contrato</label><p>${p.NUMERO_CONTRATO||'—'}</p></div>
+        <div class="detail-item"><label>Local de Lotação</label><p>${p.LOCAL_LOTACAO||'—'}</p></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <h4 style="margin:0;padding:0;border:none">Vínculos com Equipes</h4>
+        <button class="btn btn-sm btn-primary" onclick="openVinculoProf('${id}')">+ Adicionar Vínculo</button>
+      </div>
+      ${vincsHtml}
+    </div>
+    <div class="detail-section">
+      <h4>Histórico de Férias (${frs.length})</h4>
+      ${frs.length === 0 ? '<p style="color:var(--muted);font-size:13px">Nenhum registro de férias.</p>'
+        : frs.map(f => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+            ${formatDate(f.DATA_INICIO)} → ${formatDate(f.DATA_FIM)} 
+            <span class="badge ${feriasBadgeClass(f.STATUS)} badge-sm" style="margin-left:6px">${f.STATUS}</span>
+            ${f.OBSERVACAO ? `<span style="color:var(--muted)"> — ${f.OBSERVACAO}</span>` : ''}
+          </div>`).join('')}
+    </div>
+    <div class="detail-section">
+      <h4>Ocorrências (${ocs.length})</h4>
+      ${ocs.length === 0 ? '<p style="color:var(--muted);font-size:13px">Nenhuma ocorrência registrada.</p>'
+        : ocs.map(o => `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <strong>${o.TIPO}</strong> · ${formatDate(o.DATA_OCORRENCIA)}<br>
+            <span style="color:var(--muted)">${o.DESCRICAO}</span>
+          </div>`).join('')}
+    </div>`;
+
+  showModal('detalhe-prof');
+}
+
+function feriasBadgeClass(s) {
+  return { 'Programado':'badge-blue','Aprovado':'badge-teal','Em curso':'badge-amber',
+           'Concluído':'badge-gray','Cancelado':'badge-red' }[s] || 'badge-gray';
+}
+
+// ================================================================
+// VÍNCULOS
+// ================================================================
+function openVinculo(equipeId) {
+  S.editingProf = { _forEquipe: equipeId };
+  const sel = document.getElementById('vc-equipe');
+  sel.innerHTML = S.equipes.map(e => `<option value="${e.ID}" ${e.ID===equipeId?'selected':''}>${e.NOME}</option>`).join('');
+  sel.disabled = true;
+  document.getElementById('vc-inicio').value = new Date().toISOString().split('T')[0];
+  showModal('vinculo');
+}
+
+function openVinculoProf(profId) {
+  closeModal();
+  S.editingProf = { _forProf: profId };
+  const sel = document.getElementById('vc-equipe');
+  sel.innerHTML = '<option value="">Selecione...</option>' + S.equipes.map(e => `<option value="${e.ID}">${e.NOME}</option>`).join('');
+  sel.disabled = false;
+  document.getElementById('vc-inicio').value = new Date().toISOString().split('T')[0];
+  setTimeout(() => showModal('vinculo'), 100);
+}
+
+async function saveVinculo() {
+  const equipeId = v('vc-equipe'), turno = v('vc-turno');
+  if (!equipeId || !turno) { showErr('vinc-err', 'Equipe e turno são obrigatórios.'); return; }
+
+  const profId = S.editingProf?._forEquipe
+    ? await pickProfForEquipe()
+    : S.editingProf?._forProf;
+
+  if (!profId) { showErr('vinc-err', 'Profissional não identificado.'); return; }
+
+  const res = await api('addVinculo', {
+    profissionalId: profId, equipeId, turno: v('vc-turno'),
+    tipoVinculo: v('vc-tipo'), contrato: v('vc-contrato'),
+    dataInicio: v('vc-inicio'), dataFim: v('vc-fim')
+  });
+  if (!res.success) { showErr('vinc-err', res.error); return; }
+  toast('Vínculo criado!', 'success');
+  closeModal();
+  const [re, rp] = await Promise.all([api('getEquipes'), api('getProfissionais')]);
+  if(re.success) S.equipes = re.data;
+  if(rp.success) S.profissionais = rp.data;
+  renderEquipes(); renderProfs();
+}
+
+async function pickProfForEquipe() {
+  // When opening from team card, ask user to select a professional
+  const equipeId = S.editingProf._forEquipe;
+  // We'll use a simple prompt-like select
+  const profs = S.profissionais.filter(p => p.STATUS_VINCULO === 'Ativo');
+  const sel = document.createElement('select');
+  sel.className = 'form-control';
+  sel.id = 'temp-prof-sel';
+  sel.innerHTML = '<option value="">Selecione o profissional...</option>' + profs.map(p => `<option value="${p.ID}">${p.NOME} (${p.CATEGORIA})</option>`).join('');
+  const body = document.getElementById('vinculo').querySelector('.modal-body');
+  const existing = document.getElementById('temp-prof-sel-wrap');
+  if (!existing) {
+    const wrap = document.createElement('div');
+    wrap.id = 'temp-prof-sel-wrap';
+    wrap.className = 'form-group';
+    wrap.innerHTML = '<label>Profissional *</label>';
+    wrap.appendChild(sel);
+    body.insertBefore(wrap, body.firstChild);
+  }
+  return document.getElementById('temp-prof-sel')?.value || null;
+}
+
+async function removeVinculoAction(vinculoId, profId) {
+  if (!confirm('Remover este vínculo?')) return;
+  const res = await api('removeVinculo', { id: vinculoId });
+  if (res.success) {
+    toast('Vínculo removido.', 'success');
+    const [re, rp] = await Promise.all([api('getEquipes'), api('getProfissionais')]);
+    if(re.success) S.equipes = re.data;
+    if(rp.success) S.profissionais = rp.data;
+    openDetalheProf(profId);
+  } else toast(res.error, 'error');
+}
+
+// ================================================================
+// FÉRIAS
+// ================================================================
+function renderFerias(search = '') {
+  const status = document.getElementById('filter-ferias-status')?.value || '';
+  const hoje = new Date();
+
+  const filtered = S.ferias.filter(f => {
+    const q = search.toLowerCase();
+    const matchSearch = !q || f.profissionalNome?.toLowerCase().includes(q);
+    const matchSt = !status || f.STATUS === status;
+    return matchSearch && matchSt;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById('ferias-tbody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏖️</div><h3>Nenhum registro de férias</h3><p>Programe as férias dos profissionais.</p></div></td></tr>';
+    return;
+  }
+
+  document.getElementById('ferias-tbody').innerHTML = filtered.map(f => {
+    const inicio = new Date(f.DATA_INICIO);
+    const fim = new Date(f.DATA_FIM);
+    const dias = Math.round((fim - inicio) / 86400000) + 1;
+    let status = f.STATUS;
+    if (status === 'Aprovado' && inicio <= hoje && fim >= hoje) status = 'Em curso';
+    const equipes = (f.equipesNomes||[]).map(e => `<span class="badge badge-gray" style="font-size:10px">${e}</span>`).join(' ');
+    return `<tr>
+      <td><strong>${f.profissionalNome||'—'}</strong></td>
+      <td><span class="badge badge-blue" style="font-size:11px">${f.profissionalCategoria||'—'}</span></td>
+      <td>${equipes || '—'}</td>
+      <td><span class="cal-range">${formatDate(f.DATA_INICIO)} → ${formatDate(f.DATA_FIM)}</span></td>
+      <td style="font-size:13px">${dias} dia(s)</td>
+      <td><span class="badge ${feriasBadgeClass(status)}">${status}</span></td>
+      <td class="td-actions">
+        <button class="btn-icon btn-sm" onclick="openModal('ferias','${f.ID}')" title="Editar">✏️</button>
+        <button class="btn-icon btn-sm" onclick="confirmDelete('ferias','${f.ID}','férias de ${f.profissionalNome}')" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterFerias(v) { renderFerias(v); }
+
+function populateProfSelects() {
+  const ativos = S.profissionais.filter(p => p.STATUS_VINCULO === 'Ativo');
+  const opts = '<option value="">Selecione...</option>' + ativos.map(p => `<option value="${p.ID}">${p.NOME} (${p.CATEGORIA})</option>`).join('');
+  ['frs-prof','oc-prof'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
+}
+
+async function saveFerias() {
+  const profId = v('frs-prof'), inicio = v('frs-inicio'), fim = v('frs-fim');
+  if (!profId || !inicio || !fim) { showErr('ferias-err', 'Profissional, data início e data fim são obrigatórios.'); return; }
+
+  const data = {
+    id: S.editingId, profissionalId: profId,
+    dataInicio: inicio, dataFim: fim,
+    status: v('frs-status'), observacao: v('frs-obs')
+  };
+
+  const res = await api(S.editingId ? 'updateFerias' : 'addFerias', data);
+  if (!res.success) { showErr('ferias-err', res.error); return; }
+  toast(S.editingId ? 'Férias atualizadas!' : 'Férias programadas!', 'success');
+  closeModal();
+  const rf = await api('getFerias');
+  if(rf.success){ S.ferias = rf.data; renderFerias(); }
+}
+
+// ================================================================
+// OCORRÊNCIAS
+// ================================================================
+function renderOcs(search = '') {
+  const tipo = document.getElementById('filter-ocs-tipo')?.value || '';
+  const filtered = S.ocorrencias.filter(o => {
+    const q = search.toLowerCase();
+    const matchSearch = !q || o.profissionalNome?.toLowerCase().includes(q) || o.DESCRICAO?.toLowerCase().includes(q);
+    const matchTipo = !tipo || o.TIPO === tipo;
+    return matchSearch && matchTipo;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById('ocs-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📋</div><h3>Nenhuma ocorrência registrada</h3></div></td></tr>';
+    return;
+  }
+
+  const ocBadge = { 'Advertência Verbal':'badge-amber','Advertência Escrita':'badge-red',
+    'Termo de Apontamento':'badge-purple','Suspensão':'badge-red',
+    'Elogio':'badge-teal','Licença Médica':'badge-blue','Outro':'badge-gray' };
+
+  document.getElementById('ocs-tbody').innerHTML = filtered.map(o => `<tr>
+    <td><strong>${o.profissionalNome||'—'}</strong></td>
+    <td><span class="badge ${ocBadge[o.TIPO]||'badge-gray'}">${o.TIPO}</span></td>
+    <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.DESCRICAO||'—'}</td>
+    <td style="font-size:12px">${formatDate(o.DATA_OCORRENCIA)}</td>
+    <td style="font-size:12px">${o.gestorNome||'—'}</td>
+    <td class="td-actions">
+      <button class="btn-icon btn-sm" onclick="openModal('ocorrencia','${o.ID}')" title="Editar">✏️</button>
+      <button class="btn-icon btn-sm" onclick="confirmDelete('ocorrencia','${o.ID}','esta ocorrência')" title="Excluir">🗑️</button>
+    </td>
+  </tr>`).join('');
+}
+
+function filterOcs(v) { renderOcs(v); }
+
+async function saveOcorrencia() {
+  const profId = v('oc-prof'), tipo = v('oc-tipo'), desc = v('oc-desc'), data = v('oc-data');
+  if (!profId || !tipo || !desc || !data) { showErr('oc-err', 'Todos os campos são obrigatórios.'); return; }
+
+  const payload = {
+    id: S.editingId, profissionalId: profId, tipo, descricao: desc,
+    dataOcorrencia: data, gestorId: S.user?.id
+  };
+
+  const res = await api(S.editingId ? 'updateOcorrencia' : 'addOcorrencia', payload);
+  if (!res.success) { showErr('oc-err', res.error); return; }
+  toast('Ocorrência registrada!', 'success');
+  closeModal();
+  const ro = await api('getOcorrencias');
+  if(ro.success){ S.ocorrencias = ro.data; renderOcs(); }
+}
+
+// ================================================================
+// GESTORES
+// ================================================================
+async function loadGestores() {
+  const res = await api('getGestores');
+  if (!res.success) { toast('Sem permissão para ver gestores.', 'error'); return; }
+  const gestores = res.data;
+  document.getElementById('gestores-tbody').innerHTML = gestores.map(g => `<tr>
+    <td><strong>${g.NOME}</strong></td>
+    <td>${g.EMAIL}</td>
+    <td><span class="badge ${g.PERFIL==='admin'?'badge-purple':'badge-blue'}">${g.PERFIL}</span></td>
+    <td>${String(g.ATIVO)==='true' ? '<span class="badge badge-teal">Ativo</span>' : '<span class="badge badge-red">Inativo</span>'}</td>
+    <td class="td-actions">
+      <button class="btn btn-sm btn-secondary" onclick="toggleGestor('${g.ID}')">${String(g.ATIVO)==='true'?'Desativar':'Ativar'}</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function toggleGestor(id) {
+  const res = await api('toggleGestor', { id });
+  if (res.success) { toast('Status alterado.', 'success'); loadGestores(); }
+  else toast(res.error, 'error');
+}
+
+async function saveGestor() {
+  const nome = v('gt-nome'), email = v('gt-email'), perfil = v('gt-perfil'), senha = v('gt-senha');
+  if (!nome || !email) { showErr('gestor-err', 'Nome e e-mail são obrigatórios.'); return; }
+  const res = await api('addGestor', { nome, email, senha: senha || undefined, perfil });
+  if (!res.success) { showErr('gestor-err', res.error); return; }
+  toast('Gestor criado!', 'success');
+  closeModal(); loadGestores();
+}
+
+// ================================================================
+// MODAL MANAGEMENT
+// ================================================================
+function openModal(type, id = null) {
+  S.editingId = id;
+  hideAllModals();
+
+  if (type === 'equipe') {
+    populateEquipeIrmaSelect();
+    if (id) {
+      const e = S.equipes.find(x => x.ID === id);
+      if (e) {
+        setVal('eq-nome', e.NOME); setVal('eq-tipo', e.TIPO); setVal('eq-regional', e.REGIONAL);
+        setVal('eq-local', e.LOCAL_BASE); setVal('eq-tel', e.TELEFONE); setVal('eq-email', e.EMAIL);
+        setVal('eq-centros', e.CENTROS_SAUDE); 
+        document.getElementById('equipe-modal-title').textContent = 'Editar Equipe';
+        setTimeout(() => setVal('eq-irma', e.EQUIPE_IRMA), 100);
+      }
+    } else {
+      clearForm(['eq-nome','eq-tipo','eq-regional','eq-local','eq-tel','eq-email','eq-irma','eq-centros']);
+      document.getElementById('equipe-modal-title').textContent = 'Nova Equipe';
+    }
+    showModal('equipe');
+  }
+
+  else if (type === 'profissional') {
+    if (id) {
+      const p = S.profissionais.find(x => x.ID === id);
+      if (p) {
+        setVal('pf-nome', p.NOME); setVal('pf-email', p.EMAIL); setVal('pf-tel', p.TELEFONE);
+        setVal('pf-nasc', p.DATA_NASCIMENTO ? p.DATA_NASCIMENTO.substring(0,10) : '');
+        setVal('pf-endereco', p.ENDERECO); setVal('pf-cat', p.CATEGORIA);
+        setVal('pf-horario', p.HORARIO_TRABALHO); setVal('pf-contrato', p.NUMERO_CONTRATO);
+        setVal('pf-lotacao', p.LOCAL_LOTACAO); setVal('pf-status', p.STATUS_VINCULO);
+        document.getElementById('prof-modal-title').textContent = 'Editar Profissional';
+      }
+    } else {
+      clearForm(['pf-nome','pf-email','pf-tel','pf-nasc','pf-endereco','pf-cat','pf-horario','pf-contrato','pf-lotacao','pf-status']);
+      document.getElementById('prof-modal-title').textContent = 'Novo Profissional';
+    }
+    showModal('profissional');
+  }
+
+  else if (type === 'ferias') {
+    populateProfSelects();
+    if (id) {
+      const f = S.ferias.find(x => x.ID === id);
+      if (f) {
+        setVal('frs-prof', f.PROFISSIONAL_ID); setVal('frs-inicio', f.DATA_INICIO?.substring(0,10));
+        setVal('frs-fim', f.DATA_FIM?.substring(0,10)); setVal('frs-status', f.STATUS);
+        setVal('frs-obs', f.OBSERVACAO);
+        document.getElementById('ferias-modal-title').textContent = 'Editar Férias';
+      }
+    } else {
+      clearForm(['frs-prof','frs-inicio','frs-fim','frs-obs']);
+      setVal('frs-status', 'Programado');
+      document.getElementById('ferias-modal-title').textContent = 'Programar Férias';
+    }
+    showModal('ferias');
+  }
+
+  else if (type === 'ocorrencia') {
+    populateProfSelects();
+    if (id) {
+      const o = S.ocorrencias.find(x => x.ID === id);
+      if (o) {
+        setVal('oc-prof', o.PROFISSIONAL_ID); setVal('oc-tipo', o.TIPO);
+        setVal('oc-data', o.DATA_OCORRENCIA?.substring(0,10)); setVal('oc-desc', o.DESCRICAO);
+        document.getElementById('oc-modal-title').textContent = 'Editar Ocorrência';
+      }
+    } else {
+      clearForm(['oc-prof','oc-tipo','oc-desc']);
+      document.getElementById('oc-data').value = new Date().toISOString().split('T')[0];
+      document.getElementById('oc-modal-title').textContent = 'Registrar Ocorrência';
+    }
+    showModal('ocorrencia');
+  }
+
+  else if (type === 'gestor') {
+    clearForm(['gt-nome','gt-email','gt-senha']); setVal('gt-perfil','gestor');
+    showModal('gestor');
+  }
+}
+
+function showModal(name) {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-' + name).style.display = 'block';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  hideAllModals();
+  S.editingId = null; S.editingProf = null;
+  // Clear errors
+  document.querySelectorAll('.form-err').forEach(e => { e.classList.remove('show'); e.textContent = ''; });
+  // Reset temp prof select
+  const tmpWrap = document.getElementById('temp-prof-sel-wrap');
+  if (tmpWrap) tmpWrap.remove();
+  const eq = document.getElementById('vc-equipe');
+  if (eq) eq.disabled = false;
+}
+
+function hideAllModals() {
+  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// ================================================================
+// DELETE CONFIRM
+// ================================================================
+async function confirmDelete(type, id, name) {
+  if (!confirm(`Confirmar exclusão: "${name}"?\n\nEsta ação não pode ser desfeita.`)) return;
+  const actions = { equipe: 'deleteEquipe', profissional: 'deleteProfissional', ferias: 'deleteFerias', ocorrencia: 'deleteOcorrencia' };
+  const res = await api(actions[type], { id });
+  if (res.success) {
+    toast('Registro excluído.', 'success');
+    await loadAll();
+    if (type === 'equipe') renderEquipes();
+    if (type === 'profissional') renderProfs();
+    if (type === 'ferias') renderFerias();
+    if (type === 'ocorrencia') renderOcs();
+  } else toast(res.error || 'Erro ao excluir.', 'error');
+}
+
+// ================================================================
+// HELPERS
+// ================================================================
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function setVal(id, val) { const el = document.getElementById(id); if(el) el.value = val || ''; }
+function clearForm(ids) { ids.forEach(id => setVal(id, '')); }
+function showErr(id, msg) { const el = document.getElementById(id); if(el){ el.textContent = msg; el.classList.add('show'); } }
+
+function formatDate(d) {
+  if (!d) return '—';
+  try {
+    const dt = new Date(d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString('pt-BR');
+  } catch { return d; }
+}
+
+function populateEquipeIrmaSelect() {
+  const sel = document.getElementById('eq-irma');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Nenhuma</option>' + S.equipes.map(e => {
+    if (S.editingId && e.ID === S.editingId) return '';
+    return `<option value="${e.ID}">${e.NOME}</option>`;
+  }).join('');
+}
+
+function toast(msg, type = 'success') {
+  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]||'💬'}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => { el.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// ================================================================
+// AUTO-INIT
+// ================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  if (S.token && S.user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initApp();
+  }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
