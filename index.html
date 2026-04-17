@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SiRHE — Sistema de RH EMAD/EMAP</title>
+<title>eSAD-RH — Sistema de Gestão de RH | EMAD/EMAP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
@@ -103,7 +103,12 @@ section.active{display:block}
 .metric-card.red::before{background:var(--red)}
 .metric-card.blue::before{background:var(--blue)}
 .metric-card.purple::before{background:var(--brown)}
-.metric-icon{font-size:24px;margin-bottom:12px}
+.metric-icon{font-size:26px;margin-bottom:12px;line-height:1}
+.metric-card.teal .metric-icon{color:var(--green-d)}
+.metric-card.amber .metric-icon{color:var(--orange)}
+.metric-card.red .metric-icon{color:var(--red)}
+.metric-card.blue .metric-icon{color:var(--blue)}
+.metric-card.purple .metric-icon{color:var(--brown)}
 .metric-val{font-family:'Nunito',sans-serif;font-size:32px;font-weight:800;color:var(--text);line-height:1}
 .metric-lbl{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500}
 
@@ -269,8 +274,8 @@ textarea.form-control{resize:vertical;min-height:80px}
 <!-- ─── LOGIN ─── -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">Si<span>RHE</span></div>
-    <p class="login-sub">Sistema de RH — EMAD / EMAP</p>
+    <div class="login-logo">e<span>SAD-RH</span></div>
+    <p class="login-sub">Sistema de Gestão de RH — EMAD / EMAP</p>
     <input type="email" id="login-email" placeholder="E-mail institucional" autocomplete="username">
     <input type="password" id="login-pass" placeholder="Senha" autocomplete="current-password">
     <button class="btn-login" onclick="doLogin()">Entrar no Sistema</button>
@@ -283,7 +288,7 @@ textarea.form-control{resize:vertical;min-height:80px}
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-logo">Si<span>RHE</span></div>
+      <div class="sidebar-logo">e<span>SAD-RH</span></div>
       <div style="font-size:10px;color:var(--muted);margin-top:2px">EMAD · EMAP · RH</div>
     </div>
     <div class="sidebar-user">
@@ -366,6 +371,21 @@ textarea.form-control{resize:vertical;min-height:80px}
       <div id="equipes-list"><div class="loading"><div class="spinner"></div>Carregando equipes...</div></div>
     </section>
 
+    <!-- EQUIPE DETALHE -->
+    <section id="section-equipe-detalhe">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-secondary" onclick="showSection('equipes')"><i class="ri-arrow-left-line"></i> Voltar</button>
+          <div>
+            <h1 class="page-title" id="eq-det-titulo">Equipe</h1>
+            <p class="page-sub" id="eq-det-sub"></p>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('equipe',S.viewingEquipeId)"><i class="ri-edit-2-line"></i> Editar Equipe</button>
+      </div>
+      <div id="eq-det-body"></div>
+    </section>
+
     <!-- PROFISSIONAIS -->
     <section id="section-profissionais">
       <div class="page-header">
@@ -382,9 +402,9 @@ textarea.form-control{resize:vertical;min-height:80px}
         </select>
         <select class="filter-select" onchange="filterProfs(document.getElementById('search-profs').value)" id="filter-profs-status">
           <option value="">Todos os status</option>
+          <option value="Afastado">Afastado</option>
           <option value="Ativo">Ativo</option>
           <option value="Inativo">Inativo</option>
-          <option value="Afastado">Afastado</option>
           <option value="Licença">Licença</option>
         </select>
       </div>
@@ -399,29 +419,15 @@ textarea.form-control{resize:vertical;min-height:80px}
     <!-- FÉRIAS -->
     <section id="section-ferias">
       <div class="page-header">
-        <div><h1 class="page-title">Controle de Férias</h1><p class="page-sub">Programação e aprovação de férias</p></div>
-        <button class="btn btn-primary" onclick="openModal('ferias')">
-          <i class="ri-add-line"></i>
-          Programar Férias
-        </button>
+        <div><h1 class="page-title">Controle de Férias</h1><p class="page-sub">Gestão de férias por profissional</p></div>
       </div>
       <div class="toolbar">
-        <div class="search-box"><i class="ri-search-line"></i><input type="text" placeholder="Buscar profissional..." oninput="filterFerias(this.value)" id="search-ferias"></div>
-        <select class="filter-select" onchange="filterFerias(document.getElementById('search-ferias').value)" id="filter-ferias-status">
-          <option value="">Todos os status</option>
-          <option value="Programado">Programado</option>
-          <option value="Aprovado">Aprovado</option>
-          <option value="Em curso">Em curso</option>
-          <option value="Concluído">Concluído</option>
-          <option value="Cancelado">Cancelado</option>
+        <div class="search-box"><i class="ri-search-line"></i><input type="text" placeholder="Buscar profissional..." oninput="renderFerias(this.value)" id="search-ferias"></div>
+        <select class="filter-select" id="filter-ferias-cat" onchange="renderFerias(document.getElementById('search-ferias').value)">
+          <option value="">Todas as categorias</option>
         </select>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Profissional</th><th>Categoria</th><th>Equipe(s)</th><th>Período</th><th>Duração</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
-          <tbody id="ferias-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div>Carregando...</div></td></tr></tbody>
-        </table>
-      </div>
+      <div id="ferias-prof-list"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
     </section>
 
     <!-- OCORRÊNCIAS -->
@@ -512,6 +518,14 @@ textarea.form-control{resize:vertical;min-height:80px}
         <div class="form-group span-2"><label>Nome Completo *</label><input class="form-control" id="pf-nome" placeholder="Nome completo"></div>
         <div class="form-group"><label>CPF</label><input class="form-control" id="pf-cpf" placeholder="000.000.000-00"></div>
         <div class="form-group"><label>Data de Nascimento</label><input class="form-control" id="pf-nasc" type="date"></div>
+        <div class="form-group"><label>Sexo</label>
+          <select class="form-control" id="pf-sexo">
+            <option value="">Selecione...</option>
+            <option value="Feminino">Feminino</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
         <div class="form-group"><label>E-mail</label><input class="form-control" id="pf-email" type="email" placeholder="email@dominio.com"></div>
         <div class="form-group"><label>Telefone</label><input class="form-control" id="pf-tel" placeholder="(00) 00000-0000"></div>
         <div class="form-group span-2"><label>Endereço</label><input class="form-control" id="pf-endereco" placeholder="Endereço completo"></div>
@@ -520,29 +534,26 @@ textarea.form-control{resize:vertical;min-height:80px}
         <div class="form-group"><label>Categoria *</label>
           <select class="form-control" id="pf-cat">
             <option value="">Selecione...</option>
-            <optgroup label="EMAD">
-              <option value="Médico">Médico</option>
-              <option value="Enfermeiro">Enfermeiro</option>
-              <option value="Técnico em Enfermagem">Técnico em Enfermagem</option>
-            </optgroup>
-            <optgroup label="EMAP">
-              <option value="Assistente Social">Assistente Social</option>
-              <option value="Fisioterapeuta">Fisioterapeuta</option>
-              <option value="Nutricionista">Nutricionista</option>
-              <option value="Terapeuta Ocupacional">Terapeuta Ocupacional</option>
-              <option value="Psicólogo">Psicólogo</option>
-              <option value="Fonoaudiólogo">Fonoaudiólogo</option>
-            </optgroup>
+            <option value="Assistente Social">Assistente Social</option>
+            <option value="Enfermeiro">Enfermeiro</option>
+            <option value="Fisioterapeuta">Fisioterapeuta</option>
+            <option value="Fonoaudiólogo">Fonoaudiólogo</option>
+            <option value="Médico">Médico</option>
+            <option value="Nutricionista">Nutricionista</option>
+            <option value="Psicólogo">Psicólogo</option>
+            <option value="Técnico em Enfermagem">Técnico em Enfermagem</option>
+            <option value="Terapeuta Ocupacional">Terapeuta Ocupacional</option>
           </select>
         </div>
         <div class="form-group"><label>Horário de Trabalho</label>
           <select class="form-control" id="pf-horario">
             <option value="">Selecione...</option>
-            <option value="07 às 13">07 às 13</option>
-            <option value="07 às 19">07 às 19</option>
-            <option value="13 às 19">13 às 19</option>
-            <option value="19 às 07">19 às 07</option>
-            <option value="08 às 17">08 às 17</option>
+            <option value="07 às 12">07 às 12</option>
+            <option value="13 às 18">13 às 18</option>
+            <option value="07 às 18 (Integral)">07 às 18 (Integral)</option>
+            <option value="Flexível">Flexível</option>
+            <option value="Plantão 12h">Plantão 12h</option>
+            <option value="Plantão 24h">Plantão 24h</option>
           </select>
         </div>
         <div class="form-group"><label>Nº do Conselho</label><input class="form-control" id="pf-conselho" placeholder="Ex: CRM-SP 12345"></div>
@@ -556,9 +567,9 @@ textarea.form-control{resize:vertical;min-height:80px}
         <div class="form-group"><label>Nº do Contrato</label><input class="form-control" id="pf-contrato" placeholder="Número do contrato"></div>
         <div class="form-group"><label>Status do Vínculo</label>
           <select class="form-control" id="pf-status">
+            <option value="Afastado">Afastado</option>
             <option value="Ativo">Ativo</option>
             <option value="Inativo">Inativo</option>
-            <option value="Afastado">Afastado</option>
             <option value="Licença">Licença</option>
           </select>
         </div>
@@ -615,6 +626,12 @@ textarea.form-control{resize:vertical;min-height:80px}
       <div class="form-err" id="ferias-err"></div>
       <div class="form-grid cols-1">
         <div class="form-group"><label>Profissional *</label><select class="form-control" id="frs-prof"><option value="">Selecione...</option></select></div>
+        <div class="form-group"><label>Tipo de Férias *</label>
+          <select class="form-control" id="frs-tipo">
+            <option value="Regulares">Regulares</option>
+            <option value="Prêmio">Prêmio</option>
+          </select>
+        </div>
         <div class="form-group"><label>Data de Início *</label><input class="form-control" id="frs-inicio" type="date"></div>
         <div class="form-group"><label>Data de Fim *</label><input class="form-control" id="frs-fim" type="date"></div>
         <div class="form-group"><label>Status</label>
@@ -688,6 +705,21 @@ textarea.form-control{resize:vertical;min-height:80px}
     </div>
   </div>
 
+  <!-- FÉRIAS PROFISSIONAL DETALHE -->
+  <div class="modal modal-lg" id="modal-ferias-prof" style="display:none">
+    <div class="modal-header">
+      <div>
+        <span class="modal-title" id="ferias-prof-title">Férias do Profissional</span>
+        <div id="ferias-prof-sub" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="ferias-prof-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+    </div>
+  </div>
+
   <!-- DETALHES PROFISSIONAL -->
   <div class="modal modal-lg" id="modal-detalhe-prof" style="display:none">
     <div class="modal-header"><span class="modal-title">Detalhes do Profissional</span><button class="modal-close" onclick="closeModal()">×</button></div>
@@ -712,10 +744,10 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlof4iMH535JFyK_PjZ
 // STATE
 // ================================================================
 const S = {
-  token: localStorage.getItem('sirhe_token'),
-  user: tryParse(localStorage.getItem('sirhe_user')),
+  token: localStorage.getItem('esadrh_token'),
+  user: tryParse(localStorage.getItem('esadrh_user')),
   profissionais: [], equipes: [], vinculos: [], ferias: [], ocorrencias: [],
-  editingId: null, editingProf: null,
+  editingId: null, editingProf: null, viewingEquipeId: null,
 };
 
 function tryParse(s){ try{ return JSON.parse(s) }catch(e){ return null } }
@@ -762,13 +794,13 @@ async function doLogin() {
   if (!res.success) { errEl.textContent = res.error; return; }
 
   S.token = res.token; S.user = res.user;
-  localStorage.setItem('sirhe_token', res.token);
-  localStorage.setItem('sirhe_user', JSON.stringify(res.user));
+  localStorage.setItem('esadrh_token', res.token);
+  localStorage.setItem('esadrh_user', JSON.stringify(res.user));
   initApp();
 }
 
 function doLogout() {
-  localStorage.removeItem('sirhe_token'); localStorage.removeItem('sirhe_user');
+  localStorage.removeItem('esadrh_token'); localStorage.removeItem('esadrh_user');
   S.token = null; S.user = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
@@ -846,27 +878,27 @@ async function loadDashboard() {
 
   document.getElementById('dash-metrics').innerHTML = `
     <div class="metric-card teal">
-      <div class="metric-icon">👥</div>
+      <div class="metric-icon"><i class="ri-group-line"></i></div>
       <div class="metric-val">${d.totalProfissionais}</div>
       <div class="metric-lbl">Profissionais Ativos</div>
     </div>
     <div class="metric-card blue">
-      <div class="metric-icon">🔗</div>
+      <div class="metric-icon"><i class="ri-links-line"></i></div>
       <div class="metric-val">${d.vinculosAtivos}</div>
       <div class="metric-lbl">Vínculos Ativos</div>
     </div>
     <div class="metric-card amber">
-      <div class="metric-icon">🏖️</div>
+      <div class="metric-icon"><i class="ri-sun-line"></i></div>
       <div class="metric-val">${d.emFerias}</div>
       <div class="metric-lbl">Em Férias Hoje</div>
     </div>
     <div class="metric-card red">
-      <div class="metric-icon">⚠️</div>
+      <div class="metric-icon"><i class="ri-alarm-warning-line"></i></div>
       <div class="metric-val">${d.alertas}</div>
       <div class="metric-lbl">Alertas Pendentes</div>
     </div>
     <div class="metric-card purple">
-      <div class="metric-icon">📅</div>
+      <div class="metric-icon"><i class="ri-calendar-2-line"></i></div>
       <div class="metric-val">${d.feriasFuturas}</div>
       <div class="metric-lbl">Férias (próx. 60 dias)</div>
     </div>
@@ -884,7 +916,7 @@ async function loadDashboard() {
 
   document.getElementById('dash-alerts').innerHTML = `
     <div class="alerts-box">
-      <div class="alerts-title">⚡ Alertas e Avisos <span style="background:var(--red);color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;margin-left:4px">${alertas.length}</span></div>
+      <div class="alerts-title"><i class="ri-alarm-warning-line"></i> Alertas e Avisos <span style="background:var(--red);color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;margin-left:4px">${alertas.length}</span></div>
       ${alertHtml}
       ${alertas.length > 0 ? '' : ''}
     </div>`;
@@ -906,7 +938,7 @@ async function loadDashboard() {
     }).join('');
     document.getElementById('dash-charts').innerHTML = `
       <div class="card" style="max-width:500px">
-        <div style="font-size:14px;font-weight:700;margin-bottom:16px;font-family:'Syne',sans-serif">Profissionais por Categoria</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px"><i class="ri-bar-chart-grouped-line" style="color:var(--green-d)"></i>Profissionais por Categoria</div>
         ${chartHtml}
       </div>`;
   }
@@ -942,51 +974,139 @@ function renderEquipes(filter = '') {
     </div>`;
 }
 
+const QUADRO_REFERENCIA = {
+  'EMAD': {'Médico':1,'Enfermeiro':1,'Técnico em Enfermagem':2},
+  'EMAP': {'Assistente Social':1,'Fisioterapeuta':1,'Fonoaudiólogo':1,'Nutricionista':1,'Psicólogo':1,'Terapeuta Ocupacional':1}
+};
+
 function teamCard(e) {
   const profs = e.profissionais || [];
-  const turnoChips = {};
-  profs.forEach(p => { (turnoChips[p.turno] = turnoChips[p.turno] || []).push(p); });
+  const tipo = (e.TIPO || '').toUpperCase();
+  const ref = QUADRO_REFERENCIA[tipo] || {};
+  const totalVagas = Object.values(ref).reduce((a,b)=>a+b,0);
+  const pct = totalVagas > 0 ? Math.min(100, Math.round((profs.length/totalVagas)*100)) : (profs.length > 0 ? 100 : 0);
+  const abertas = Math.max(0, totalVagas - profs.length);
+  const fillColor = pct >= 90 ? 'var(--green-d)' : pct >= 50 ? 'var(--orange)' : 'var(--red)';
 
-  const profsHtml = profs.length === 0
-    ? '<p style="font-size:12px;color:var(--muted)">Nenhum profissional vinculado</p>'
-    : profs.slice(0,6).map(p => `
-        <span class="team-prof-chip">
-          <span class="chip-avatar">${p.nome.charAt(0)}</span>
-          ${p.nome.split(' ')[0]}
-          <span style="font-size:10px;opacity:.6">(${p.turno||'?'})</span>
-        </span>`).join('') + (profs.length > 6 ? `<span class="team-prof-chip">+${profs.length-6}</span>` : '');
+  const byCat = {};
+  profs.forEach(p => { const c = p.categoria||p.CATEGORIA||'?'; byCat[c]=(byCat[c]||0)+1; });
 
+  const catRows = Object.entries(ref).map(([cat, exp]) => {
+    const atual = byCat[cat]||0;
+    return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0">
+      <span style="color:var(--muted)">${cat}</span>
+      <span style="font-weight:600;color:${atual>=exp?'var(--green-d)':'var(--red)'}">${atual}/${exp}</span>
+    </div>`;
+  }).join('');
+
+  const safeNome = e.NOME.replace(/'/g,"\\'");
   return `
     <div class="team-card">
       <div class="team-card-header">
         <div>
           <div class="team-card-name">${e.NOME}</div>
-          <div class="team-card-type">${e.TIPO || '—'} · ${e.REGIONAL || '—'}</div>
+          <div class="team-card-type">${e.TIPO||'—'} · ${e.REGIONAL||'—'}</div>
         </div>
         <div style="display:flex;gap:6px">
           <button class="btn-icon" onclick="openModal('equipe','${e.ID}')" title="Editar"><i class="ri-edit-2-line"></i></button>
-          <button class="btn-icon" onclick="confirmDelete('equipe','${e.ID}','${e.NOME}')" title="Excluir"><i class="ri-delete-bin-6-line"></i></button>
+          <button class="btn-icon" onclick="confirmDelete('equipe','${e.ID}','${safeNome}')" title="Excluir"><i class="ri-delete-bin-6-line"></i></button>
         </div>
       </div>
       <div class="team-card-body">
-        ${e.LOCAL_BASE ? `<div class="team-info-row"><i class="ri-map-pin-2-line"></i>${e.LOCAL_BASE}</div>` : ''}
-        ${e.TELEFONE ? `<div class="team-info-row"><i class="ri-phone-line"></i>${e.TELEFONE}</div>` : ''}
-        ${e.TELEFONE2 ? `<div class="team-info-row"><i class="ri-phone-line"></i>${e.TELEFONE2}</div>` : ''}
-        ${e.TELEFONE3 ? `<div class="team-info-row"><i class="ri-phone-line"></i>${e.TELEFONE3}</div>` : ''}
-        ${e.equipeIrmaNome ? `<div class="team-info-row">🤝 Irmã: <strong>${e.equipeIrmaNome}</strong></div>` : ''}
-        ${e.CENTROS_SAUDE ? `<div class="team-info-row" style="font-size:11px">🏥 ${e.CENTROS_SAUDE}</div>` : ''}
-        <div class="team-profs">
-          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px">PROFISSIONAIS (${profs.length})</div>
-          ${profsHtml}
+        ${e.LOCAL_BASE?`<div class="team-info-row"><i class="ri-map-pin-2-line"></i>${e.LOCAL_BASE}</div>`:''}
+        ${e.TELEFONE?`<div class="team-info-row"><i class="ri-phone-line"></i>${e.TELEFONE}</div>`:''}
+        ${e.equipeIrmaNome?`<div class="team-info-row"><i class="ri-links-line"></i>Irmã: <strong>${e.equipeIrmaNome}</strong></div>`:''}
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:11px;font-weight:600;color:var(--muted)">COMPLETUDE</span>
+            <span style="font-size:12px;font-weight:700;color:${fillColor}">${pct}%${abertas>0?' · '+abertas+' em aberto':''}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${fillColor}"></div></div>
+          <div style="margin-top:8px">${catRows}</div>
         </div>
         <div style="text-align:right;margin-top:12px">
-          <button class="btn btn-sm btn-secondary" onclick="openVinculo('${e.ID}')"><i class="ri-user-add-line"></i> Vincular Profissional</button>
+          <button class="btn btn-sm btn-primary" onclick="openEquipeDetalhe('${e.ID}')"><i class="ri-team-line"></i> Gerir Equipe</button>
         </div>
       </div>
     </div>`;
 }
 
 function filterEquipes(v) { renderEquipes(v); }
+
+function openEquipeDetalhe(id) {
+  S.viewingEquipeId = id;
+  const e = S.equipes.find(x => x.ID === id);
+  if (!e) return;
+  const profs = e.profissionais || [];
+  const tipo = (e.TIPO||'').toUpperCase();
+  const ref = QUADRO_REFERENCIA[tipo] || {};
+
+  const byCat = {};
+  profs.forEach(p => { const c=p.categoria||p.CATEGORIA||'?'; if(!byCat[c])byCat[c]=[]; byCat[c].push(p); });
+  const allCats = new Set([...Object.keys(ref),...Object.keys(byCat)]);
+
+  const completRows = [...allCats].sort().map(cat => {
+    const exp = ref[cat]||0;
+    const members = byCat[cat]||[];
+    const atual = members.length;
+    const abertas = Math.max(0, exp - atual);
+    const pct = exp > 0 ? Math.min(100,Math.round((atual/exp)*100)) : (atual>0?100:0);
+    return `<tr>
+      <td><strong>${cat}</strong></td>
+      <td style="text-align:center">${exp||'—'}</td>
+      <td style="text-align:center;color:${atual>=exp&&exp>0?'var(--green-d)':'var(--orange)'};font-weight:600">${atual}</td>
+      <td style="text-align:center;color:${abertas>0?'var(--red)':'var(--muted)'};font-weight:600">${abertas>0?abertas:'—'}</td>
+      <td style="min-width:100px"><div class="progress-bar" style="margin:0"><div class="progress-fill" style="width:${pct}%;background:${pct>=100?'var(--green-d)':pct>=50?'var(--orange)':'var(--red)'}"></div></div></td>
+    </tr>`;
+  }).join('');
+
+  const profsByCatHtml = [...allCats].sort().map(cat => {
+    const members = byCat[cat];
+    if (!members || members.length === 0) return '';
+    return `<div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">${cat} (${members.length})</div>
+      ${members.map(p=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px">
+          <div>
+            <div style="font-weight:600;font-size:13px">${p.nome||p.NOME}</div>
+            <div style="font-size:11px;color:var(--muted)">${p.HORARIO_TRABALHO||p.horarioTrabalho||'—'} · Contrato: ${p.NUMERO_CONTRATO||p.numeroContrato||'—'}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${statusBadgeHtml(p.statusVinculo||p.STATUS_VINCULO)}
+            <button class="btn-icon btn-sm" onclick="openDetalheProf('${p.ID||p.id}')"><i class="ri-eye-line"></i></button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  document.getElementById('eq-det-titulo').textContent = e.NOME;
+  document.getElementById('eq-det-sub').textContent = `${e.TIPO||'—'} · ${e.REGIONAL||'—'}${e.LOCAL_BASE?' · '+e.LOCAL_BASE:''}`;
+  document.getElementById('eq-det-body').innerHTML = `
+    <div class="card" style="margin-bottom:20px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px">
+        <i class="ri-bar-chart-grouped-line" style="color:var(--green-d)"></i> Análise de Completude do Quadro
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Categoria</th><th style="text-align:center">Previsto</th><th style="text-align:center">Atual</th><th style="text-align:center">Em Aberto</th><th>Ocupação</th></tr></thead>
+          <tbody>${completRows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px">
+          <i class="ri-group-line" style="color:var(--green-d)"></i> Profissionais da Equipe (${profs.length})
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="openVinculo('${e.ID}')"><i class="ri-user-add-line"></i> Vincular Profissional</button>
+      </div>
+      ${profs.length===0?'<div class="empty" style="padding:30px"><div style="font-size:32px"><i class="ri-user-unfollow-line"></i></div><p>Nenhum profissional vinculado.</p></div>':profsByCatHtml}
+    </div>`;
+
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('section-equipe-detalhe').classList.add('active');
+}
 
 async function saveEquipe() {
   const nome = v('eq-nome'), tipo = v('eq-tipo'), local = v('eq-local'), regional = v('eq-regional');
@@ -1049,8 +1169,11 @@ function filterProfs(v) { renderProfs(v); }
 
 function populateCategoryFilter() {
   const cats = [...new Set(S.profissionais.map(p => p.CATEGORIA).filter(Boolean))].sort();
-  const el = document.getElementById('filter-profs-cat');
-  if (el) el.innerHTML = '<option value="">Todas as categorias</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  const opts = '<option value="">Todas as categorias</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  ['filter-profs-cat','filter-ferias-cat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
 }
 
 function statusBadgeHtml(s) {
@@ -1064,7 +1187,7 @@ async function saveProfissional() {
 
   const data = {
     id: S.editingId, nome, email: v('pf-email'), telefone: v('pf-tel'),
-    cpf: v('pf-cpf'), dataNascimento: v('pf-nasc'), endereco: v('pf-endereco'),
+    cpf: v('pf-cpf'), dataNascimento: v('pf-nasc'), sexo: v('pf-sexo'), endereco: v('pf-endereco'),
     categoria: cat, horarioTrabalho: v('pf-horario'),
     numeroConselho: v('pf-conselho'), validadeConselho: v('pf-conselho-val'),
     equipe: v('pf-equipe'), localLotacao: v('pf-lotacao'),
@@ -1248,44 +1371,167 @@ async function removeVinculoAction(vinculoId, profId) {
 // FÉRIAS
 // ================================================================
 function renderFerias(search = '') {
-  const status = document.getElementById('filter-ferias-status')?.value || '';
+  const catFilter = document.getElementById('filter-ferias-cat')?.value || '';
   const hoje = new Date();
 
-  const filtered = S.ferias.filter(f => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || f.profissionalNome?.toLowerCase().includes(q);
-    const matchSt = !status || f.STATUS === status;
-    return matchSearch && matchSt;
-  });
+  let profs = S.profissionais.filter(p => p.STATUS_VINCULO === 'Ativo');
+  if (search) profs = profs.filter(p => p.NOME?.toLowerCase().includes(search.toLowerCase()));
+  if (catFilter) profs = profs.filter(p => p.CATEGORIA === catFilter);
+  profs = profs.sort((a,b) => (a.NOME||'').localeCompare(b.NOME||''));
 
-  if (filtered.length === 0) {
-    document.getElementById('ferias-tbody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">🏖️</div><h3>Nenhum registro de férias</h3><p>Programe as férias dos profissionais.</p></div></td></tr>';
+  if (profs.length === 0) {
+    document.getElementById('ferias-prof-list').innerHTML = '<div class="empty"><div class="empty-icon" style="font-size:36px"><i class="ri-sun-line"></i></div><h3>Nenhum profissional ativo encontrado</h3></div>';
     return;
   }
 
-  document.getElementById('ferias-tbody').innerHTML = filtered.map(f => {
-    const inicio = new Date(f.DATA_INICIO);
-    const fim = new Date(f.DATA_FIM);
-    const dias = Math.round((fim - inicio) / 86400000) + 1;
-    let status = f.STATUS;
-    if (status === 'Aprovado' && inicio <= hoje && fim >= hoje) status = 'Em curso';
-    const equipes = (f.equipesNomes||[]).map(e => `<span class="badge badge-gray" style="font-size:10px">${e}</span>`).join(' ');
+  const rows = profs.map(p => {
+    const feriasProf = S.ferias.filter(f => f.PROFISSIONAL_ID === p.ID);
+    const admissao = p.DATA_INICIO_VINCULO ? new Date(p.DATA_INICIO_VINCULO) : null;
+    const diasDireito = 30;
+    let periodoAtual = '—', vencimento = '—', diasGozados = 0, saldo = '—';
+
+    if (admissao && !isNaN(admissao)) {
+      let pi = new Date(admissao);
+      while (true) {
+        const next = new Date(pi);
+        next.setFullYear(next.getFullYear() + 1);
+        if (next > hoje) break;
+        pi = next;
+      }
+      const pf = new Date(pi); pf.setFullYear(pf.getFullYear() + 1);
+      const venc = new Date(pf); venc.setFullYear(venc.getFullYear() + 1);
+      periodoAtual = `${pi.toLocaleDateString('pt-BR')} — ${pf.toLocaleDateString('pt-BR')}`;
+      vencimento = venc.toLocaleDateString('pt-BR');
+      diasGozados = feriasProf
+        .filter(f => ['Concluído','Em curso','Aprovado'].includes(f.STATUS) && new Date(f.DATA_INICIO) >= pi)
+        .reduce((sum, f) => sum + Math.max(0, Math.round((new Date(f.DATA_FIM)-new Date(f.DATA_INICIO))/86400000)+1), 0);
+      saldo = diasDireito - diasGozados;
+    }
+
+    const programados = feriasProf.filter(f => new Date(f.DATA_INICIO) >= hoje && ['Programado','Aprovado'].includes(f.STATUS));
+    const equipes = (p.vinculos||[]).map(v => v.equipeNome).join(', ') || p.EQUIPE_NOME || '—';
+
     return `<tr>
-      <td><strong>${f.profissionalNome||'—'}</strong></td>
-      <td><span class="badge badge-blue" style="font-size:11px">${f.profissionalCategoria||'—'}</span></td>
-      <td>${equipes || '—'}</td>
-      <td><span class="cal-range">${formatDate(f.DATA_INICIO)} → ${formatDate(f.DATA_FIM)}</span></td>
-      <td style="font-size:13px">${dias} dia(s)</td>
-      <td><span class="badge ${feriasBadgeClass(status)}">${status}</span></td>
+      <td>
+        <button style="background:none;border:none;cursor:pointer;text-align:left;padding:0;color:var(--green-d);font-weight:600;font-size:13px" onclick="openFeriasProf('${p.ID}')">${p.NOME}</button>
+        <div style="font-size:11px;color:var(--muted)">${equipes}</div>
+      </td>
+      <td><span class="badge badge-blue" style="font-size:10px">${p.CATEGORIA||'—'}</span></td>
+      <td style="font-size:12px">${admissao ? admissao.toLocaleDateString('pt-BR') : '—'}</td>
+      <td style="font-size:11px">${periodoAtual}</td>
+      <td style="text-align:center;font-size:13px">${diasGozados}</td>
+      <td style="text-align:center;font-size:13px;font-weight:700;color:${typeof saldo==='number'&&saldo<=0?'var(--red)':'var(--green-d)'}">${typeof saldo==='number'?saldo:'—'}</td>
+      <td style="text-align:center;font-size:13px">${programados.length}</td>
       <td class="td-actions">
-        <button class="btn-icon btn-sm" onclick="openModal('ferias','${f.ID}')" title="Editar"><i class="ri-edit-2-line"></i></button>
-        <button class="btn-icon btn-sm" onclick="confirmDelete('ferias','${f.ID}','férias de ${f.profissionalNome}')" title="Excluir"><i class="ri-delete-bin-6-line"></i></button>
+        <button class="btn btn-sm btn-primary" onclick="openFeriasProf('${p.ID}')"><i class="ri-calendar-event-line"></i> Gerir</button>
       </td>
     </tr>`;
   }).join('');
+
+  document.getElementById('ferias-prof-list').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Profissional</th><th>Categoria</th><th>Admissão</th>
+          <th>Período Aquisitivo Atual</th>
+          <th style="text-align:center">Dias Gozados</th>
+          <th style="text-align:center">Saldo</th>
+          <th style="text-align:center">Programados</th>
+          <th style="text-align:right">Ações</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
 function filterFerias(v) { renderFerias(v); }
+
+function openFeriasProf(profId) {
+  const p = S.profissionais.find(x => x.ID === profId);
+  if (!p) return;
+  const feriasProf = S.ferias.filter(f => f.PROFISSIONAL_ID === profId);
+  const admissao = p.DATA_INICIO_VINCULO ? new Date(p.DATA_INICIO_VINCULO) : null;
+  const hoje = new Date();
+  const diasDireito = 30;
+  let periodoHtml = '', diasGozados = 0;
+
+  if (admissao && !isNaN(admissao)) {
+    let pi = new Date(admissao);
+    while (true) { const n = new Date(pi); n.setFullYear(n.getFullYear()+1); if(n>hoje) break; pi=n; }
+    const pf = new Date(pi); pf.setFullYear(pf.getFullYear()+1);
+    const venc = new Date(pf); venc.setFullYear(venc.getFullYear()+1);
+    diasGozados = feriasProf
+      .filter(f => ['Concluído','Em curso','Aprovado'].includes(f.STATUS) && new Date(f.DATA_INICIO) >= pi)
+      .reduce((sum,f) => sum+Math.max(0,Math.round((new Date(f.DATA_FIM)-new Date(f.DATA_INICIO))/86400000)+1), 0);
+    const saldo = diasDireito - diasGozados;
+    periodoHtml = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="background:var(--green-pale);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green-d)">${diasDireito}</div>
+          <div style="font-size:11px;color:var(--muted)">Dias de Direito</div>
+        </div>
+        <div style="background:var(--orange-pale);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--orange)">${diasGozados}</div>
+          <div style="font-size:11px;color:var(--muted)">Dias Gozados</div>
+        </div>
+        <div style="background:${saldo<=0?'var(--red-pale)':'var(--green-pale)'};border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:${saldo<=0?'var(--red)':'var(--green-d)'}">${saldo}</div>
+          <div style="font-size:11px;color:var(--muted)">Saldo Restante</div>
+        </div>
+      </div>
+      <div style="background:var(--blue-pale);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#1430C8">
+        <strong>Período aquisitivo atual:</strong> ${pi.toLocaleDateString('pt-BR')} a ${pf.toLocaleDateString('pt-BR')} &nbsp;|&nbsp;
+        <strong>Vencimento para gozo:</strong> ${venc.toLocaleDateString('pt-BR')}
+      </div>`;
+  }
+
+  const futuras = feriasProf.filter(f => new Date(f.DATA_INICIO) >= hoje && ['Programado','Aprovado'].includes(f.STATUS));
+  const historico = feriasProf.filter(f => !futuras.includes(f));
+
+  const renderPeriodo = (f) => {
+    const ini = new Date(f.DATA_INICIO), fim = new Date(f.DATA_FIM);
+    const dias = Math.max(0, Math.round((fim-ini)/86400000)+1);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px">
+      <div>
+        <div style="font-size:12px;font-weight:600">${f.TIPO_FERIAS||'Regulares'} · ${dias} dia(s)</div>
+        <div style="font-size:11px;color:var(--muted)">${ini.toLocaleDateString('pt-BR')} → ${fim.toLocaleDateString('pt-BR')}</div>
+        ${f.OBSERVACAO?`<div style="font-size:11px;color:var(--muted)">${f.OBSERVACAO}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="badge ${feriasBadgeClass(f.STATUS)}">${f.STATUS}</span>
+        <button class="btn-icon btn-sm" onclick="openModal('ferias','${f.ID}')"><i class="ri-edit-2-line"></i></button>
+        <button class="btn-icon btn-sm" onclick="confirmDelete('ferias','${f.ID}','férias')"><i class="ri-delete-bin-6-line"></i></button>
+      </div>
+    </div>`;
+  };
+
+  document.getElementById('ferias-prof-title').textContent = p.NOME;
+  document.getElementById('ferias-prof-sub').textContent = `${p.CATEGORIA||'—'} · Admissão: ${admissao?admissao.toLocaleDateString('pt-BR'):'—'}`;
+  document.getElementById('ferias-prof-body').innerHTML = `
+    ${periodoHtml}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700"><i class="ri-calendar-event-line" style="color:var(--green-d)"></i> Períodos Programados (${futuras.length}/2)</div>
+      <button class="btn btn-sm btn-primary" onclick="openFeriasProgramar('${profId}')"><i class="ri-add-line"></i> Programar</button>
+    </div>
+    ${futuras.length===0?'<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Nenhum período programado.</p>':futuras.map(renderPeriodo).join('')}
+    <div style="font-size:13px;font-weight:700;margin:16px 0 10px;border-top:1px solid var(--border);padding-top:16px"><i class="ri-history-line" style="color:var(--muted)"></i> Histórico (${historico.length})</div>
+    ${historico.length===0?'<p style="font-size:13px;color:var(--muted)">Nenhum histórico de férias.</p>':historico.map(renderPeriodo).join('')}`;
+  showModal('ferias-prof');
+}
+
+function openFeriasProgramar(profId) {
+  closeModal();
+  S.editingId = null;
+  populateProfSelects();
+  setTimeout(() => {
+    clearForm(['frs-inicio','frs-fim','frs-obs']);
+    setVal('frs-prof', profId);
+    setVal('frs-status', 'Programado');
+    setVal('frs-tipo', 'Regulares');
+    document.getElementById('ferias-modal-title').textContent = 'Programar Férias';
+    showModal('ferias');
+  }, 100);
+}
 
 function populateProfSelects() {
   const ativos = S.profissionais.filter(p => p.STATUS_VINCULO === 'Ativo');
@@ -1303,6 +1549,7 @@ async function saveFerias() {
   const data = {
     id: S.editingId, profissionalId: profId,
     dataInicio: inicio, dataFim: fim,
+    tipoFerias: v('frs-tipo') || 'Regulares',
     status: v('frs-status'), observacao: v('frs-obs')
   };
 
@@ -1434,7 +1681,7 @@ function openModal(type, id = null) {
       const p = S.profissionais.find(x => x.ID === id);
       if (p) {
         setVal('pf-nome', p.NOME); setVal('pf-email', p.EMAIL); setVal('pf-tel', p.TELEFONE);
-        setVal('pf-cpf', p.CPF);
+        setVal('pf-cpf', p.CPF); setVal('pf-sexo', p.SEXO || '');
         setVal('pf-nasc', p.DATA_NASCIMENTO ? p.DATA_NASCIMENTO.substring(0,10) : '');
         setVal('pf-endereco', p.ENDERECO); setVal('pf-cat', p.CATEGORIA);
         setVal('pf-horario', p.HORARIO_TRABALHO);
@@ -1448,7 +1695,7 @@ function openModal(type, id = null) {
         document.getElementById('prof-modal-title').textContent = 'Editar Profissional';
       }
     } else {
-      clearForm(['pf-nome','pf-email','pf-tel','pf-cpf','pf-nasc','pf-endereco','pf-cat',
+      clearForm(['pf-nome','pf-email','pf-tel','pf-cpf','pf-nasc','pf-sexo','pf-endereco','pf-cat',
         'pf-horario','pf-conselho','pf-conselho-val','pf-equipe','pf-lotacao',
         'pf-contrato','pf-status','pf-inicio-vinc','pf-fim-contrato']);
       document.getElementById('prof-modal-title').textContent = 'Novo Profissional';
@@ -1463,12 +1710,14 @@ function openModal(type, id = null) {
       if (f) {
         setVal('frs-prof', f.PROFISSIONAL_ID); setVal('frs-inicio', f.DATA_INICIO?.substring(0,10));
         setVal('frs-fim', f.DATA_FIM?.substring(0,10)); setVal('frs-status', f.STATUS);
+        setVal('frs-tipo', f.TIPO_FERIAS || 'Regulares');
         setVal('frs-obs', f.OBSERVACAO);
         document.getElementById('ferias-modal-title').textContent = 'Editar Férias';
       }
     } else {
       clearForm(['frs-prof','frs-inicio','frs-fim','frs-obs']);
       setVal('frs-status', 'Programado');
+      setVal('frs-tipo', 'Regulares');
       document.getElementById('ferias-modal-title').textContent = 'Programar Férias';
     }
     showModal('ferias');
